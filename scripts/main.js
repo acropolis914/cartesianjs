@@ -10,7 +10,7 @@ import { addInteractions } from './addInteractions.js';
 import { addGridInteractions } from './gridInteractions.js';
 import { handleResize } from './handleResize.js';
 
-export let svg, xScale, yScale;
+export let svg, xScale, yScale, storedPoints;
 
 function gridSetup() {
     const svgContainer = document.getElementById('svg-container');
@@ -25,16 +25,27 @@ function gridSetup() {
     addGridInteractions(svg,width,height);
     // Load existing points from storage
     
-    const storedPoints = getAllPoints();
+    storedPoints = getAllPoints();
     storedPoints.forEach(point => plotPoint(svg, xScale, yScale, point));
+}
 
-
+export function populatePointsList() {
+    const pointsUl = document.getElementById('points-ul');
+    pointsUl.innerHTML = ''; // Clear existing content
+    
+    storedPoints = getAllPoints();
+    storedPoints.forEach(point => {
+        const li = document.createElement('li');
+        li.textContent = `${Math.round(point.x)}, ${Math.round(point.y)}`;
+        pointsUl.appendChild(li);
+    });
 }
 
 export function run() {
     gridSetup();
     addInteractions();
     window.addEventListener('resize', handleResize);
+    populatePointsList();
 }
 
 run();
