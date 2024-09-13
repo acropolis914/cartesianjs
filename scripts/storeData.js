@@ -1,6 +1,9 @@
 import {svg, xScale, yScale} from './main.js';
 import { updatePoints } from './points.js';
 const STORE_KEY = 'cartesian-plane-points';
+const STORE_KEY_FIGURES = 'cartesian-plane-figures';
+
+
 
 export function getAllPoints() {
     const storedData = localStorage.getItem(STORE_KEY);

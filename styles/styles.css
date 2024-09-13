@@ -36,15 +36,15 @@ body {
     padding: 3%;
   }
   #cartesian-container {
-    height: 100vw;
+    height: 100vw; /* Adjust height for cartesian container */
     width: inherit; /* Adjust height for cartesian container */
   }
   #points-ul{
     overflow: scroll;
   }
   #points-list {
-    flex-grow: 1;
     order: 1;
+    padding-top: 50px;
   }
 }
 
@@ -56,6 +56,7 @@ body {
   max-height: 80vh;
   align-items: center;
   max-width: 1000px;
+  display: grid;
 }
 
 /* Points List Styling */
@@ -83,8 +84,10 @@ li {
   margin: 1%; /* Adds space between list items */
   max-width: 50px;
   display: flex;
+  text-wrap: nowrap;
   justify-content: center;
   align-items: center;
+  padding: 3px;
 }
 
 /* SVG Container Styling */
@@ -106,17 +109,19 @@ button {
   margin: 0;
   border: none;
   cursor: pointer;
-  width: 100%;
   border-radius: 10px;
-  max-width: 100px;
+  max-width: 40px;
+  height: inherit;
+  text-align: center;
 }
 
 /* Button Container Styling */
 #button-container {
   display: flex;
-  justify-content: center;
+  justify-content: right;
   gap: 10px;
   width: 100%;
+  height: 100%;
   margin: 1%;
 }
 

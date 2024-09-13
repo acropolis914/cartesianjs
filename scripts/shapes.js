@@ -6,12 +6,14 @@ export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
         .attr("y2", yScale(y2));
 }
 
-export function drawCircle(svg, xScale, yScale, x, y, radius) {
+export function drawCircleOutline(svg, xScale, yScale, x, y, radius) {
     svg.append("circle")
         .attr("cx", xScale(x))
         .attr("cy", yScale(y))
         .attr("r", radius)
-        .attr("fill", "blue");
+        .style("stroke", "black")  // Set stroke color to black
+        .style("stroke-width", "2px")  // Set stroke width to 2px
+        .style("fill", "none");  // Remove fill color
 }
 
 export function drawRectangle(svg, xScale, yScale, x1, y1, x2, y2) {

@@ -6,6 +6,7 @@ export function addPoint(svg, xScale, yScale, point) {
     savePoint(point);
 }
 
+
 export function plotPoint(svg, xScale, yScale, point) {
     const circle = svg.append("circle")
         .attr("cx", xScale(point.x))
@@ -32,6 +33,7 @@ export function removePoint(svg, xScale, yScale, pointElement) {
 
 export function updatePoints(svg, xScale, yScale) {
     svg.selectAll('.point').remove();
+    svg.selectAll('circle').remove();
     const storedPoints = getAllPoints();
     storedPoints.forEach(point => plotPoint(svg, xScale, yScale, point));
 }

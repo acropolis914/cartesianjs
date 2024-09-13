@@ -27,7 +27,6 @@ function gridSetup() {
     
     storedPoints = getAllPoints();
     storedPoints.forEach(point => plotPoint(svg, xScale, yScale, point));
-    addmanypoints();
 }
 
 export function populatePointsList() {

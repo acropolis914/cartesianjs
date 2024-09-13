@@ -1,7 +1,7 @@
 import { xScale, yScale, svg, populatePointsList } from "./main.js";
 import { addPoint } from "./points.js";
 import { removePoints } from "./storeData.js";
-
+import { drawCircleOutline } from "./shapes.js";
 export function addInteractions() {
     // Implement interaction logic here
     // For example, adding click event listeners to add new points
@@ -41,6 +41,32 @@ export function addInteractions() {
         const point = { x, y };
         addPoint(svg, xScale, yScale, point);
         populatePointsList();
+    });
+
+    const addCircleBtn = document.getElementById('add-circle-btn');
+    addCircleBtn.addEventListener('click', () => {
+        const input =prompt('Add circle with given coordinate x,y,r');
+        if (input) {
+            const coordinates = input.split(',');
+            if (coordinates.length !== 3) {
+                console.error('Invalid input format. Please enter three integers separated by a comma.');
+                return;
+            }
+            
+            const x = parseInt(coordinates[0]);
+            const y = parseInt(coordinates[1]);
+            const r = parseInt(coordinates[2]);
+            
+            if (isNaN(x) || isNaN(y) || isNaN(r)) {
+                console.error('Invalid coordinates. All must be integers.');
+                return;
+            }
+            
+            const point = {x, y, r};
+            drawCircleOutline(svg, xScale, yScale, x, y, r);
+        } else {
+            console.error('No input provided.');
+        }
     });
 
     const removePointsBtn = document.getElementById('remove-points-btn');
