@@ -2,7 +2,7 @@
 import { initializeGraph } from './graph-setup.js';
 import { drawAxes } from './axis.js';
 import { drawGridLines } from './grid.js';
-import { removePoint, plotPoint } from './points.js';
+import { addPoint, removePoint, plotPoint } from './points.js';
 // import { drawShape } from './shapes.js';
 // import { rotateAroundOrigin,scaleAroundOrigin } from './transformations.js';
 import { getAllPoints, savePoint, deletePoint, updatePoint } from './storeData.js';
@@ -27,6 +27,7 @@ function gridSetup() {
     
     storedPoints = getAllPoints();
     storedPoints.forEach(point => plotPoint(svg, xScale, yScale, point));
+    addmanypoints();
 }
 
 export function populatePointsList() {
@@ -46,9 +47,19 @@ export function run() {
     addInteractions();
     window.addEventListener('resize', handleResize);
     populatePointsList();
+    //addmanypoints();
 }
 
 run();
 
+
+function addmanypoints() {
+    for (let i=0; i <10; i++){
+    const x = Math.random() * (xScale.domain()[1] - xScale.domain()[0]) + xScale.domain()[0];
+    const y = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
+    const point = { x, y };
+    addPoint(svg, xScale, yScale, point);
+}
+}
 
 
