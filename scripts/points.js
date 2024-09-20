@@ -1,8 +1,8 @@
 import { savePoint, deletePoint, updatePoint } from './storeData.js';
 import { getAllPoints } from './storeData.js';
+import { addListInteractions } from './addInteractions.js';
 
 export function addPoint(svg, xScale, yScale, point) {
-    plotPoint(svg, xScale, yScale, point);
     savePoint(point);
 }
 
@@ -15,19 +15,33 @@ export function plotPoint(svg, xScale, yScale, point) {
         .attr("fill", "aliceblue")
         .attr("stroke", "black")
         .attr("class", "point")
-    
-    // Add interaction listeners
-    // circle.on('click', (event) => {
-    //     event.preventDefault(); // Prevent default behavior
-    //     removePoint(svg, xScale, yScale, circle);
-    // });
-}
+        .attr("id", point.id);
 
-export function removePoint(svg, xScale, yScale, pointElement) {
-    const id = pointElement.attr('id');
+        circle.on('click', (event) => {
+            event.preventDefault(); // Prevent default behavior
+            
+            // Enlarge the circle
+            circle.transition()
+                .duration(500)
+                .attr("r", 10)
+                .style("color", "green")
+                .style("filter", "brightness(150%)"); // Increase radius to 10px
+            
+            // Return to original size after 1 second
+            setTimeout(() => {
+                circle.transition()
+                    .duration(1000)
+                    .attr("r", 3); // Return to original radius
+            }, 1000);
+        });
+    }
+    
+
+
+export function removePoint(svg, xScale, yScale, point) {
+    const id = point.id;
     if (id) {
-        deletePoint(id);
-        pointElement.remove();
+        svg.select(`[id="${id}"]`).remove();
     }
 }
 

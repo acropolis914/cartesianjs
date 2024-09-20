@@ -11,16 +11,20 @@ export function drawAxes(svg, xScale, yScale) {
     
     // Draw X-axis
     let k = width/height;
-    const xAxis = d3.axisBottom(xScale);
+    let xTicks= ( Math.floor(xScale.domain()[1])- Math.floor(xScale.domain()[0])+ 1);
+    const xAxis = d3.axisBottom(xScale).ticks(xTicks/2 );
+
     svg.append("g")
         .attr("transform", `translate(0,${height / 2})`)
         .call(xAxis);
 
     // Draw Y-axis  
-    const yAxis = d3.axisRight(yScale);
+    let yTicks= ( Math.floor(yScale.domain()[1])- Math.floor(yScale.domain()[0])+ 1);
+    const yAxis = d3.axisRight(yScale).ticks(yTicks/2 );
     svg.append("g")
-        .call(yAxis)
-        .attr("transform", `translate(${width / 2},0)`);
+        .attr("transform", `translate(${width / 2},0)`)
+        .call(yAxis);
+
 
 
     // Add origin

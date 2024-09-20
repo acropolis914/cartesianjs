@@ -6,7 +6,7 @@ import { addPoint, removePoint, plotPoint } from './points.js';
 // import { drawShape } from './shapes.js';
 // import { rotateAroundOrigin,scaleAroundOrigin } from './transformations.js';
 import { getAllPoints, savePoint, deletePoint, updatePoint } from './storeData.js';
-import { addInteractions } from './addInteractions.js';
+import { addInteractions, addListInteractions } from './addInteractions.js';
 import { addGridInteractions } from './gridInteractions.js';
 import { handleResize } from './handleResize.js';
 
@@ -37,15 +37,20 @@ export function populatePointsList() {
     storedPoints.forEach(point => {
         const li = document.createElement('li');
         li.textContent = `${Math.round(point.x)}, ${Math.round(point.y)}`;
+        li.id = point.id;
+        li.addEventListener('click', () => {
+            console.log(`Clicked item: ${point.id}`);
+            deletePoint(point);
+            li.remove();});
         pointsUl.appendChild(li);
     });
 }
 
 export function run() {
     gridSetup();
+    populatePointsList();
     addInteractions();
     window.addEventListener('resize', handleResize);
-    populatePointsList();
     //addmanypoints();
 }
 

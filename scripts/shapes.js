@@ -10,8 +10,8 @@ export function drawCircleOutline(svg, xScale, yScale, x, y, radius) {
     svg.append("circle")
         .attr("cx", xScale(x))
         .attr("cy", yScale(y))
-        .attr("r", radius)
-        .style("stroke", "black")  // Set stroke color to black
+        .attr("r", xScale(radius) - xScale(0))  // Set radius of circle
+        .style("stroke", "white")  // Set stroke color to black
         .style("stroke-width", "2px")  // Set stroke width to 2px
         .style("fill", "none");  // Remove fill color
 }

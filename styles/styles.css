@@ -88,6 +88,7 @@ li {
   justify-content: center;
   align-items: center;
   padding: 3px;
+  z-index: 5;
 }
 
 /* SVG Container Styling */
@@ -100,6 +101,10 @@ li {
   justify-content: center;
   display: flex;
   align-items: center;
+}
+
+g {
+  color: #afafaf; /* Set the desired opacity value */
 }
 
 /* Button Styling */
