@@ -1,3 +1,6 @@
+import * as d3 from "d3";
+import { svg, xScale, yScale } from "./main.js";
+
 export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
     svg.append("line")
         .attr("x1", xScale(x1))
@@ -6,7 +9,7 @@ export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
         .attr("y2", yScale(y2));
 }
 
-export function drawCircleOutline(svg, xScale, yScale, x, y, radius) {
+export function drawCircleOutline(x, y, radius) {
     svg.append("circle")
         .attr("cx", xScale(x))
         .attr("cy", yScale(y))
@@ -40,3 +43,42 @@ export function drawShape(shapeType, x1, y1, x2, y2) {
             console.log("Invalid shape type");
     }
 }
+
+function drawCircle(svg, xScale, yScale, x1, y1, radius) {
+    svg.append("circle")
+        .attr("cx", xScale(x1))
+        .attr("cy", yScale(y1))
+        .attr("r", xScale(radius) - xScale(0))
+        .attr("fill", "blue");
+}
+
+
+export function drawSine(svg) {
+    const sineData = d3.range(-10,10, 0.1).map(x => ({ x, y: Math.sin(x)*5 }));
+    const lineGenerator = d3.line()
+        // @ts-ignore
+        .x(d => xScale(d.x))
+        // @ts-ignore
+        .y(d => yScale(d.y));
+    svg.append("path")
+        .datum(sineData)
+        .attr("d", lineGenerator)
+        .attr("fill", "none")
+        .attr("stroke", "yellow")
+        .attr("stroke-width", 2);
+}
+
+// export function drawCosine() {
+//     const sineData = d3.range(-10, 3 * Math.PI, 0.1).map(x => ({ x, y: Math.cos(x)*5 }));
+//     const lineGenerator = d3.line()
+//         .x(d => xScale(d.x))
+//         .y(d => yScale(d.y));
+//     svg.append("path")
+//         .datum(sineData)
+//         .attr("d", lineGenerator)
+//         .attr("fill", "none")
+//         .attr("stroke", "powderblue")
+//         .attr("stroke-width", 2);
+// }
+
+

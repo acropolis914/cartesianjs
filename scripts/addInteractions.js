@@ -1,7 +1,13 @@
-import { xScale, yScale, svg, populatePointsList } from "./main.js";
+import { svg, xScale, yScale } from "./main.js";
+import useCartesianStore from "./state.js";
+import { addFigure } from "./state.js";
+import { populatePointsList } from "./render.js";
 import { addPoint } from "./points.js";
 import { removeAllPoints, deletePoint } from "./storeData.js";
 import { drawCircleOutline } from "./shapes.js";
+import { Point } from "./types.js";
+
+let state = useCartesianStore.getState();
 
 export function addInteractions() {
     // Implement interaction logic here
@@ -28,7 +34,7 @@ export function addInteractions() {
             }
             
             const point = {x, y};
-            addPoint(svg, xScale, yScale, point);
+            addPoint(point);
             populatePointsList();
         } else {
             console.error('No input provided.');
@@ -39,9 +45,8 @@ export function addInteractions() {
     addRandPointBtn.addEventListener('click', () => {
         const x = Math.random() * (xScale.domain()[1] - xScale.domain()[0]) + xScale.domain()[0];
         const y = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
-        const point = { x, y };
-        addPoint(svg, xScale, yScale, point);
-        console.log(point);
+        const point = new Point(x, y);
+        addFigure(point);
         populatePointsList();
     });
 
@@ -65,7 +70,7 @@ export function addInteractions() {
             }
             
             const point = {x, y, r};
-            drawCircleOutline(svg, xScale, yScale, x, y, r);
+            drawCircleOutline(x, y, r);
         } else {
             console.error('No input provided.');
         }
@@ -81,15 +86,4 @@ export function addInteractions() {
     });
 
 
-}
-
-
-export function addListInteractions() {
-    const listItems = document.getElementsByTagName('li');
-    for (let i = 0; i < listItems.length; i++) {
-        listItems[i].addEventListener('click', () => {
-            console.log(`Clicked item: ${listItems[i].id}`);
-            deletePoint(listItems[i]);
-            listItems[i].remove();
-        }); }
 }

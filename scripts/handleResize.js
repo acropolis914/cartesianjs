@@ -1,10 +1,17 @@
-import { drawAxes } from "./axis.js";
-import { drawGridLines } from "./grid.js";
-import { svg, xScale, yScale } from "./main.js";
+import { drawAxes } from "./render.js";
+import { drawGridLines } from "./render.js";
+import useCartesianStore from "./state.js";
 import { updatePoints } from "./points.js";
 
+
 let isResizing = false;
+
+
 export function handleResize() {
+    window.addEventListener('resize', resize);
+}
+
+function resize() {
     if (!isResizing) {
         isResizing = true;
         requestAnimationFrame(() => {
@@ -13,16 +20,22 @@ export function handleResize() {
             const height = svgContainer.clientHeight;
 
             // Update SVG dimensions
+            let svg = useCartesianStore.getState().svg;
+            let xScale = useCartesianStore.getState().xScale;
+            let yScale = useCartesianStore.getState().yScale
             svg.attr("width", width).attr("height", height);
 
             // Update scales
-            xScale.range([0, width]);
-            yScale.range([height, 0]);
+            //change tthis part to update the state instead of the scales
+            useCartesianStore.setState({ xScale: xScale.range([0, width]) });
+            useCartesianStore.setState({ yScale: yScale.range([height, 0]) });
+            // xScale.range([0, width]);
+            // yScale.range([height, 0]);
 
             // Redraw everything
-            drawAxes(svg, xScale, yScale);
-            drawGridLines(svg, xScale, yScale);
-            updatePoints(svg, xScale, yScale);
+            drawAxes();
+            drawGridLines();
+            updatePoints();
 
             isResizing = false;
         });

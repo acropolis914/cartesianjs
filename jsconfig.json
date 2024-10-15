@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "target": "esnext",
+    "module": "NodeNext",
+    "lib": ["esnext", "DOM"],
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "NodeNext"
+  },
+  // "include": ["scripts/**/*.js"],
+  "exclude": ["node_modules"]
+}
+

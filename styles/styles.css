@@ -82,7 +82,7 @@ li {
   border-radius: 10px;
   list-style: none;
   margin: 1%; /* Adds space between list items */
-  max-width: 50px;
+  max-width: 150px;
   display: flex;
   text-wrap: nowrap;
   justify-content: center;
@@ -118,6 +118,7 @@ button {
   max-width: 40px;
   height: inherit;
   text-align: center;
+  z-index: 5;
 }
 
 /* Button Container Styling */
