@@ -22,6 +22,7 @@ export class Line extends Figure {
         super("line", id); // Call the parent constructor with type 'line'
         this.m = m; // Slope
         this.b = b; // Y-intercept
+        this.id = id ? id : generateShortID();
     }
 
     // Optionally implement calculatePoints and render later
@@ -34,6 +35,7 @@ export class Circle extends Figure {
         this.h = h; // X-coordinate of the center
         this.k = k; // Y-coordinate of the center
         this.radius = radius; // Radius of the circle
+        this.id = id ? id : generateShortID();
     }
 
     // Optionally implement calculatePoints and render later
@@ -46,6 +48,7 @@ export class Parabola extends Figure {
         this.a = a; // Coefficient for x^2
         this.b = b; // Coefficient for x
         this.c = c; // Constant term
+        this.id = id ? id : generateShortID();
     }
 
     // Optionally implement calculatePoints and render later

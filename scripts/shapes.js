@@ -9,11 +9,12 @@ export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
         .attr("y2", yScale(y2));
 }
 
-export function drawCircleOutline(x, y, radius) {
+export function drawCircleOutline(x, y, radius, id) {
     svg.append("circle")
         .attr("cx", xScale(x))
         .attr("cy", yScale(y))
         .attr("r", xScale(radius) - xScale(0))  // Set radius of circle
+        .attr("id", id)
         .style("stroke", "white")  // Set stroke color to black
         .style("stroke-width", "2px")  // Set stroke width to 2px
         .style("fill", "none");  // Remove fill color

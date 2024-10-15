@@ -1,3 +1,4 @@
+import { min } from 'd3';
 import { defineConfig } from 'vite';
 import FullReload from 'vite-plugin-full-reload'
 
@@ -8,7 +9,7 @@ export default defineConfig({
     target: 'esnext',  // The target environment (modern browsers)
     sourcemap: true,   // Generate source maps for easier debugging
     minify: 'esbuild', // Specify minification options
-  },
+},
   server: {
     port: Math.floor(Math.random() * (4000 - 3000 + 1)) + 3000,  // Specify the port to use
     open: true,

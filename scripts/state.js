@@ -1,6 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { Point, Line, Circle, Parabola } from './types.js';
 import { plotPoint } from './points.js';
+import { drawCircleOutline } from './shapes.js';
 
 const localStorageKey = 'cartesian-store';
 
@@ -24,10 +25,21 @@ export function addFigure(figure) {
     const { figures } = useCartesianStore.getState();
     const updatedFigures = [...figures, figure];
 
-    
-    if (figure.type === 'point') {
-        plotPoint(figure);
+    switch (figure.type) {
+        case 'point':
+            plotPoint(figure);
+            break
+        case 'line':
+            break
+        case 'circle':
+            drawCircleOutline(figure.h, figure.k, figure.radius, figure.id);
+            break
+        case 'parabola':
+            break
+        default:
+            console.error('Invalid figure type');
     }
+        
 
     
     useCartesianStore.setState({ figures: updatedFigures });
@@ -53,26 +65,26 @@ export function removeAllFigures() {
 
 export function loadData() {
     const storedData = localStorage.getItem(localStorageKey);
-    if (storedData) {
-        const { figures } = JSON.parse(storedData);
-        const deserializedFigures = figures.map((fig) => {
-            switch (fig.type) {
-                case 'point':
-                    plotPoint(fig);
-                    return new Point(fig.x, fig.y, fig.id);
-                case 'line':
-                    return new Line(fig.m, fig.b, fig.id);
-                case 'circle':
-                    return new Circle(fig.h, fig.k, fig.radius, fig.id);
-                case 'parabola':
-                    return new Parabola(fig.a, fig.b, fig.c, fig.id);
-                default:
-                    return fig;
-            }
-        });
-
-        useCartesianStore.setState({ figures: deserializedFigures });
-    }
+    if (!storedData) throw new Error('No stored data found');
+    const { figures } = JSON.parse(storedData);
+    const deserializedFigures = figures.map((fig) => {
+        switch (fig.type) {
+            case 'point':
+                plotPoint(fig);
+                return new Point(fig.x, fig.y, fig.id);
+            case 'line':
+                return new Line(fig.m, fig.b, fig.id);
+            case 'circle':
+                console.log(fig);
+                drawCircleOutline(fig.h, fig.k, fig.radius, fig.id);
+                return new Circle(fig.h, fig.k, fig.radius, fig.id);
+            case 'parabola':
+                return new Parabola(fig.a, fig.b, fig.c, fig.id);
+            default:
+                return fig;
+        }
+    });
+    useCartesianStore.setState({ figures: deserializedFigures });
 }
 
 

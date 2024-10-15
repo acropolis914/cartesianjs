@@ -1,5 +1,5 @@
 import { svg, xScale, yScale, STORE_KEY} from './main.js';
-import { updatePoints,plotPoint,removePoint } from './points.js';
+import { plotPoint } from './points.js';
 import { generateShortID } from './utils.js';
 import useCartesianStore from './state.js';
 
@@ -27,13 +27,11 @@ export function deletePoint(point) {
     const id = point.id;
     const points = getAllPoints().filter(p => p.id !== id);
     localStorage.setItem(STORE_KEY, JSON.stringify(points));
-    removePoint(point);
 }
 
 export function removeAllPoints(){
     let points=[];
     localStorage.setItem(STORE_KEY, JSON.stringify(points));
-    updatePoints();
 }
 
 export function updatePoint(id, updatedPoint) {

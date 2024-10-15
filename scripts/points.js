@@ -1,4 +1,4 @@
-import { savePoint, deletePoint, updatePoint } from './storeData.js';
+import { savePoint } from './storeData.js';
 import { getAllPoints } from './storeData.js';
 import { svg, xScale, yScale} from './main.js';
 import { Point } from './types.js';

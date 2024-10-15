@@ -1,11 +1,11 @@
 import { svg, xScale, yScale } from "./main.js";
 import useCartesianStore from "./state.js";
-import { addFigure } from "./state.js";
-import { populatePointsList } from "./render.js";
+import { addFigure, removeAllFigures } from "./state.js";
+import { populateList } from "./render.js";
 import { addPoint } from "./points.js";
 import { removeAllPoints, deletePoint } from "./storeData.js";
 import { drawCircleOutline } from "./shapes.js";
-import { Point } from "./types.js";
+import { Point, Circle } from "./types.js";
 
 let state = useCartesianStore.getState();
 
@@ -33,9 +33,9 @@ export function addInteractions() {
                 return;
             }
             
-            const point = {x, y};
-            addPoint(point);
-            populatePointsList();
+            const point = new Point(x, y);
+            addFigure(point);
+            populateList();
         } else {
             console.error('No input provided.');
         }
@@ -47,7 +47,7 @@ export function addInteractions() {
         const y = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
         const point = new Point(x, y);
         addFigure(point);
-        populatePointsList();
+        populateList();
     });
 
     const addCircleBtn = document.getElementById('add-circle-btn');
@@ -69,18 +69,20 @@ export function addInteractions() {
                 return;
             }
             
-            const point = {x, y, r};
+            const circle = new Circle(x, y, r);
+            addFigure(circle);
             drawCircleOutline(x, y, r);
+            populateList();
         } else {
             console.error('No input provided.');
         }
     });
 
-    const removePointsBtn = document.getElementById('remove-points-btn');
-    removePointsBtn.addEventListener('click', () => {
-        if (confirm("Are you sure you want to remove all points? This action cannot be undone.")) {
-            removeAllPoints();
-            populatePointsList();
+    const removeFiguresButton = document.getElementById('remove-points-btn');
+    removeFiguresButton.addEventListener('click', () => {
+        if (confirm("Reset the plane?")) {
+            removeAllFigures();
+            populateList();
         }
 
     });

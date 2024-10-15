@@ -18,7 +18,7 @@ export function initialRender() {
 		//setupZoomBehavior,
 		// renderOldPoints,
 		loadData,
-		populatePointsList
+		populateList
 	);
 }
 
@@ -138,31 +138,43 @@ export function setupZoomBehavior() {
 	svg.call(zoom); // Attach zoom behavior to the SVG
 }
 
-export function renderOldPoints() {
-	let storedPoints = getAllPoints();
-	storedPoints.forEach((point) => {
-		plotPoint(point);
-	});
-}
-export function populatePointsList() {
+
+export function populateList() {
 	const pointsUl = document.getElementById("points-ul");
 	pointsUl.innerHTML = ""; // Clear existing content
 
 	let storedFigures = useCartesianStore.getState().figures;
 	storedFigures.forEach((figure) => {
 		const li = document.createElement("li");
-		li.textContent = `${figure.constructor.name} ${figure.x.toFixed(1)}, ${figure.y.toFixed(1)}`;
 		li.id = figure.id;
 		li.addEventListener("click", () => {
 			const id = figure.id;
-			console.log(figure);
-			if (id) {
-				svg.select(`[id="${id}"]`).remove();
-				removeFigure(figure);
-				li.remove();
+			console.log("Removing figure with ID", id);
+			if (!id) throw new Error("Invalid figure ID");
+			let figureSelected = svg.select(`[id="${id}"]`);
+			if (figureSelected.empty()) {
+				console.error("No figure found with ID", id);
+				return;
 			}
-
+			figureSelected.remove();
+			removeFigure(figure);
+			li.remove();
 		});
+		switch (figure.type) {
+			case 'point':
+				li.textContent = `${figure.constructor.name} ${figure.x.toFixed(1)}, ${figure.y.toFixed(1)}`;
+				break
+			case 'line':
+				li.textContent = `${figure.constructor.name} ${figure.x1.toFixed(1)}, ${figure.y1.toFixed(1)}, ${figure.x2.toFixed(1)}, ${figure.y2.toFixed(1)}`;
+				break
+			case 'circle':
+				li.textContent = `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
+				break
+			case 'parabola':
+				break
+			default:
+				console.error('Invalid figure type');
+		}	
 		pointsUl.appendChild(li);
 	});
 }
