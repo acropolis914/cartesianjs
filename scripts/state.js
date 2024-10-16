@@ -1,7 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { Point, Line, Circle, Parabola } from './types.js';
 import { plotPoint } from './points.js';
-import { drawCircleOutline } from './shapes.js';
+import { drawCircleOutline, drawLine } from './shapes.js';
 
 const localStorageKey = 'cartesian-store';
 
@@ -30,6 +30,7 @@ export function addFigure(figure) {
             plotPoint(figure);
             break
         case 'line':
+            drawLine(figure);
             break
         case 'circle':
             drawCircleOutline(figure);
@@ -73,6 +74,7 @@ export function loadData() {
                 plotPoint(fig);
                 return new Point(fig.x, fig.y, fig.id);
             case 'line':
+                drawLine(fig);
                 return new Line(fig.m, fig.b, fig.id);
             case 'circle':
                 console.log(fig);
@@ -85,7 +87,7 @@ export function loadData() {
         }
     });
     useCartesianStore.setState({ figures: deserializedFigures });
-    addFigure(new Point(0, 0));
+    plotPoint(new Point(0, 0));
 }
 
 

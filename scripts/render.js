@@ -7,27 +7,26 @@ import { svg } from "./main.js";
 import { loadData } from "./state.js";
 
 export let xScale, yScale;
-
-export function initialRender() {
-	executeInOrder(
-		setScales,
-		drawAxes,
-		drawGridLines,
-		setupZoomBehavior,
-		// renderOldPoints,
-		loadData,
-		populateList
-	);
-}
-
 let height;
 let width;
 let xAxis;
 let yAxis;
 let gridLinesX;
 let gridLinesY;
-let gGrid;
 let k;
+let xAxisGrid;
+let yAxisGrid;
+export function initialRender() {
+		setScales();
+		drawAxes();
+		drawGridLines(xScale, yScale);
+		//createGrid,
+		setupZoomBehavior();
+		// renderOldPoints,
+		loadData();
+		populateList();
+
+}
 
 export function setScales() {
 	height = svg.attr("height");
@@ -38,8 +37,6 @@ export function setScales() {
 		.domain([-10 / k, 10 / k])
 		.range([0, width]);
 	yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
-
-	gGrid = svg.append("g");
 }
 
 export function drawAxes() {
@@ -50,6 +47,7 @@ export function drawAxes() {
 		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
 
 	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
+	
 	svg.append("g")
 		.attr("class", "x-axis")
 		.attr("transform", `translate(0,${height / 2})`)
@@ -66,30 +64,12 @@ export function drawAxes() {
 		.call(yAxis);
 }
 
-export function drawGridLines() {
-	const existingGridLines = svg.selectAll(".grid-line");
-	if (!existingGridLines.empty()) {
-		// Update existing grid lines
-		existingGridLines
-			.attr("x1", (d) => xScale(d))
-			.attr("y1", yScale.range()[0])
-			.attr("x2", (d) => xScale(d))
-			.attr("y2", yScale.range()[1]);
+export function drawGridLines(xScale, yScale) {
 
-		// Update vertical grid lines
-		existingGridLines
-			.filter(".grid-line-y")
-			.attr("x1", xScale.range()[0])
-			.attr("y1", (d) => yScale(d))
-			.attr("x2", xScale.range()[1])
-			.attr("y2", (d) => yScale(d));
-
-		return;
-	}
-
+	// Remove old grid lines
+	svg.selectAll(".grid-line").remove();
 	// Create horizontal grid lines
-	gridLinesX = svg.append("g").selectAll(".grid-line-x").data(xScale.ticks());
-
+	gridLinesX = svg.append("g").selectAll(".grid-line.x").data(xScale.ticks());
 	gridLinesX
 		.enter()
 		.append("line")
@@ -102,12 +82,9 @@ export function drawGridLines() {
 		.attr("y1", yScale.range()[0])
 		.attr("x2", (d) => xScale(d))
 		.attr("y2", yScale.range()[1]);
-
 	gridLinesX.exit().remove();
-
 	// Create vertical grid lines
-	gridLinesY = svg.append("g").selectAll(".grid-line y").data(yScale.ticks());
-
+	gridLinesY = svg.append("g").selectAll(".grid-line.y").data(yScale.ticks());
 	gridLinesY
 		.enter()
 		.append("line")
@@ -120,33 +97,33 @@ export function drawGridLines() {
 		.attr("y1", (d) => yScale(d))
 		.attr("x2", xScale.range()[1])
 		.attr("y2", (d) => yScale(d));
-
 	gridLinesY.exit().remove();
 }
+
 
 export function setupZoomBehavior() {
 	const zoom = d3Zoom
 		.zoom()
-		.scaleExtent([0.5, 10])
+		.scaleExtent([0, 100])
 		.on("zoom", (event) => {
 			const { transform } = event;
-			console.log("transform", transform);
 			const zx = transform
 				.rescaleX(xScale)
 				.interpolate(d3.interpolateRound); // Rescale x-axis
 			const zy = transform
 				.rescaleY(yScale)
 				.interpolate(d3.interpolateRound);
+			xScale.domain = zx.domain;
+			yScale.domain = zy.domain;
 
-			// gridLinesX.call(xAxis, zx); // Update the x-axis with the rescaled x
-			// gridLinesY.call(yAxis, zy); // Update the y-axis with the rescaled y
-
+			const transformX = (height * transform.k) / 2 + transform.y;
+			const transformY = (width * transform.k) / 2 + transform.x;
 			svg.selectAll(".x-axis")
-				.attr("transform", `translate(0,${height / 2 + transform.y})`)
+				.attr("transform", `translate(0,${transformX})`)
 				.call(xAxis.scale(zx));
 
 			svg.selectAll(".y-axis")
-				.attr("transform", `translate(${width / 2 + transform.x},0)`)
+				.attr("transform", `translate(${transformY},0)`)
 				.call(yAxis.scale(zy));
 
 			svg.selectAll(".grid-line.x")
@@ -157,10 +134,20 @@ export function setupZoomBehavior() {
 				.attr("y1", (d) => zy(d))
 				.attr("y2", (d) => zy(d));
 
-			svg.selectAll(".point")
+			svg.selectAll(".point.figure")
 				.attr("transform", transform)
 				.attr("r", 5 / transform.k)
 				.attr("stroke-width", 1 / transform.k);
+			
+			svg.select(`.circle.figure`)
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+			
+			svg.selectAll(".line.figure")
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+
+			drawGridLines(zx, zy);
 		});
 
 	svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
@@ -188,7 +175,6 @@ function handleFigureRemoval(figure, listItem) {
 	const figureSelected = svg.select(`.figure[id="${id}"]`);
 	if (figureSelected.empty()) {
 		console.error("No figure found with ID", id);
-		return;
 	}
 
 	figureSelected.remove();
@@ -203,11 +189,7 @@ function getFigureLabel(figure) {
 				1
 			)}, ${figure.y.toFixed(1)}`;
 		case "line":
-			return `${figure.constructor.name} ${figure.x1.toFixed(
-				1
-			)}, ${figure.y1.toFixed(1)}, ${figure.x2.toFixed(
-				1
-			)}, ${figure.y2.toFixed(1)}`;
+			return `${figure.constructor.name} ${figure.m.toFixed(1)}, ${figure.b.toFixed(1)}`;
 		case "circle":
 			return `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
 		case "parabola":

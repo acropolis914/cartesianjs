@@ -3,8 +3,8 @@ import { xScale, yScale } from "./render.js";
 import useCartesianStore from "./state.js";
 import { addFigure, removeAllFigures } from "./state.js";
 import { populateList } from "./render.js";
-import { drawCircleOutline } from "./shapes.js";
-import { Point, Circle } from "./types.js";
+import { drawCircleOutline, drawLine } from "./shapes.js";
+import { Point, Circle, Line } from "./types.js";
 
 let state = useCartesianStore.getState();
 
@@ -24,11 +24,11 @@ export function addInteractions() {
                 return;
             }
             
-            const x = parseInt(coordinates[0]);
-            const y = parseInt(coordinates[1]);
+            const x = parseFloat(coordinates[0]);
+            const y = parseFloat(coordinates[1]);
             
             if (isNaN(x) || isNaN(y)) {
-                console.error('Invalid coordinates. Both must be integers.');
+                console.error('Invalid coordinates.');
                 return;
             }
             
@@ -75,6 +75,15 @@ export function addInteractions() {
             console.error('No input provided.');
             alert('No input provided.');
         }
+    });
+
+    const addRandLineBtn = document.getElementById('add-random-line-btn');
+    addRandLineBtn.addEventListener('click', () => {
+        const m = Math.random() * (xScale.domain()[1] - xScale.domain()[0]) + xScale.domain()[0];
+        const b = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
+        const line = new Line(m, b);
+        addFigure(line);
+        populateList();
     });
 
     const removeFiguresButton = document.getElementById('remove-points-btn');

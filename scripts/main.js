@@ -12,7 +12,7 @@ function run() {
 	gridSetup();
 	initialRender();
 	addInteractions();
-	handleResize();
+	//handleResize();
 	//addmanypoints();
 	// drawSine(svg);
 }

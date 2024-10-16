@@ -2,12 +2,18 @@ import * as d3 from "d3";
 import { svg } from "./main.js";
 import { xScale, yScale } from "./render.js";
 
-export function drawLine(x1, y1, x2, y2) {
+export function drawLine(line) {
+    let m = line.m;
+    let b = line.b;
     svg.append("line")
-        .attr("x1", xScale(x1))
-        .attr("y1", yScale(y1))
-        .attr("x2", xScale(x2))
-        .attr("y2", yScale(y2));
+        .attr("x1", xScale(-10000))
+        .attr("y1", yScale(m * -10000 + b))
+        .attr("x2", xScale(10000))
+        .attr("y2", yScale(m * 10000 + b))
+        .attr("id", line.id)
+        .attr("class", "line figure")
+        .style("stroke", "white")
+        .style("stroke-width", "2px");
 }
 
 export function drawCircleOutline(circle) {
