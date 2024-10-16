@@ -32,7 +32,7 @@ export function addFigure(figure) {
         case 'line':
             break
         case 'circle':
-            drawCircleOutline(figure.h, figure.k, figure.radius, figure.id);
+            drawCircleOutline(figure);
             break
         case 'parabola':
             break
@@ -76,7 +76,7 @@ export function loadData() {
                 return new Line(fig.m, fig.b, fig.id);
             case 'circle':
                 console.log(fig);
-                drawCircleOutline(fig.h, fig.k, fig.radius, fig.id);
+                drawCircleOutline(fig);
                 return new Circle(fig.h, fig.k, fig.radius, fig.id);
             case 'parabola':
                 return new Parabola(fig.a, fig.b, fig.c, fig.id);

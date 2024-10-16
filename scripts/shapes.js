@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { svg, xScale, yScale } from "./main.js";
 
-export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
+export function drawLine(x1, y1, x2, y2) {
     svg.append("line")
         .attr("x1", xScale(x1))
         .attr("y1", yScale(y1))
@@ -9,18 +9,19 @@ export function drawLine(svg, xScale, yScale, x1, y1, x2, y2) {
         .attr("y2", yScale(y2));
 }
 
-export function drawCircleOutline(x, y, radius, id) {
+export function drawCircleOutline(circle) {
     svg.append("circle")
-        .attr("cx", xScale(x))
-        .attr("cy", yScale(y))
-        .attr("r", xScale(radius) - xScale(0))  // Set radius of circle
-        .attr("id", id)
+        .attr("cx", xScale(circle.h))
+        .attr("cy", yScale(circle.k))
+        .attr("r", xScale(circle.radius) - xScale(0))  // Set radius of circle
+        .attr("id", circle.id)  // Set id of circle
+        .attr("class", "circle figure")
         .style("stroke", "white")  // Set stroke color to black
         .style("stroke-width", "2px")  // Set stroke width to 2px
         .style("fill", "none");  // Remove fill color
 }
 
-export function drawRectangle(svg, xScale, yScale, x1, y1, x2, y2) {
+export function drawRectangle(x1, y1, x2, y2) {
     svg.append("rect")
         .attr("x", xScale(x1))
         .attr("y", yScale(y1))
@@ -29,21 +30,6 @@ export function drawRectangle(svg, xScale, yScale, x1, y1, x2, y2) {
         .attr("fill", "green");
 }
 
-export function drawShape(shapeType, x1, y1, x2, y2) {
-    switch (shapeType.toLowerCase()) {
-        case "line":
-            drawLine(svg, xScale, yScale, x1, y1, x2, y2);
-            break;
-        case "circle":
-            drawCircle(svg, xScale, yScale, x1, y1, 20); // Fixed radius for circle
-            break;
-        case "rectangle":
-            drawRectangle(svg, xScale, yScale, x1, y1, x2, y2);
-            break;
-        default:
-            console.log("Invalid shape type");
-    }
-}
 
 function drawCircle(svg, xScale, yScale, x1, y1, radius) {
     svg.append("circle")

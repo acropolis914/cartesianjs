@@ -2,179 +2,169 @@ import * as d3 from "d3";
 import * as d3Zoom from "d3-zoom";
 import useCartesianStore from "./state.js";
 import { removeFigure } from "./state.js";
-import {getAllPoints} from "./storeData.js";
-import { plotPoint } from "./points.js";
 import { executeInOrder } from "./utils.js";
-import { svg,xScale, yScale } from "./main.js";
+import { svg, xScale, yScale } from "./main.js";
 import { loadData } from "./state.js";
-
 
 let state = useCartesianStore.getState();
 
 export function initialRender() {
-	executeInOrder(
-		drawAxes,
-		drawGridLines,
-		//setupZoomBehavior,
-		// renderOldPoints,
-		loadData,
-		populateList
-	);
+  executeInOrder(
+    drawAxes,
+    drawGridLines,
+    // setupZoomBehavior,
+    // renderOldPoints,
+    loadData,
+    populateList
+  );
 }
 
-
 export function drawAxes() {
-	svg.selectAll("g").remove();
-	svg.selectAll("text.origin").remove();
+  svg.selectAll("g").remove();
+  svg.selectAll("text.origin").remove();
 
-	// Get dimensions of the SVG
-	const height = svg.attr("height");
-	const width = svg.attr("width");
+  const height = svg.attr("height");
+  const width = svg.attr("width");
 
-	// Draw X-axis
-	let xTicks =
-		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
-	const xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
+  // Draw X-axis
+  const xTicks = Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
+  const xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
+  svg.append("g")
+    .attr("transform", `translate(0,${height / 2})`)
+    .call(xAxis);
 
-	svg.append("g")
-		.attr("transform", `translate(0,${height / 2})`)
-		.call(xAxis);
-
-	// Draw Y-axis
-	let yTicks =
-		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
-	const yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
-	svg.append("g")
-		.attr("transform", `translate(${width / 2},0)`)
-		.call(yAxis);
-
-	// Add origin
-	svg.append("text")
-		.attr("class", "origin")
-		.attr("x", svg.attr("width") / 2)
-		.attr("y", svg.attr("height") / 2)
-		.attr("text-anchor", "middle")
-		.text("(0,0)")
-		.attr("fill", "white");
+  // Draw Y-axis
+  const yTicks = Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
+  const yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
+  svg.append("g")
+    .attr("transform", `translate(${width / 2},0)`)
+    .call(yAxis);
 }
 
 export function drawGridLines() {
-	const existingGridLines = svg.selectAll(".grid-line");
+  const existingGridLines = svg.selectAll(".grid-line");
+  if (!existingGridLines.empty()) {
+    // Update existing grid lines
+    existingGridLines
+      .attr("x1", (d) => xScale(d))
+      .attr("y1", yScale.range()[0])
+      .attr("x2", (d) => xScale(d))
+      .attr("y2", yScale.range()[1]);
 
-	if (existingGridLines.empty()) {
-		const gridLines = svg
-			.append("g")
-			.selectAll(".grid-line")
-			.data(xScale.ticks());
+    // Update vertical grid lines
+    existingGridLines
+      .filter(".grid-line-y")
+      .attr("x1", xScale.range()[0])
+      .attr("y1", (d) => yScale(d))
+      .attr("x2", xScale.range()[1])
+      .attr("y2", (d) => yScale(d));
 
-		gridLines
-			.enter()
-			.append("line")
-			.attr("class", "grid-line")
-			.attr("stroke", "lightgray")
-			.attr("stroke-width", 1)
-			.attr("stroke-dasharray", "4 4")
-			.attr("opacity", 0.2)
-			.merge(gridLines)
-			.attr("x1", (d) => xScale(d))
-			.attr("y1", yScale.range()[0])
-			.attr("x2", (d) => xScale(d))
-			.attr("y2", yScale.range()[1]);
+    return;
+  }
 
-		// Remove exit nodes
-		gridLines.exit().remove();
+  // Create horizontal grid lines
+  const gridLines = svg
+    .append("g")
+    .selectAll(".grid-line")
+    .data(xScale.ticks());
 
-		// Create vertical grid lines
-		const gridLinesY = svg
-			.append("g")
-			.selectAll(".grid-line-y")
-			.data(yScale.ticks());
+  gridLines
+    .enter()
+    .append("line")
+    .attr("class", "grid-line")
+    .attr("stroke", "lightgray")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "4 4")
+    .attr("opacity", 0.2)
+    .attr("x1", (d) => xScale(d))
+    .attr("y1", yScale.range()[0])
+    .attr("x2", (d) => xScale(d))
+    .attr("y2", yScale.range()[1]);
 
-		gridLinesY
-			.enter()
-			.append("line")
-			.attr("class", "grid-line-y")
-			.attr("stroke", "lightgray")
-			.attr("stroke-width", 1)
-			.attr("stroke-dasharray", "4 4")
-			.attr("opacity", 0.2)
-			.merge(gridLinesY)
-			.attr("x1", xScale.range()[0])
-			.attr("y1", (d) => yScale(d))
-			.attr("x2", xScale.range()[1])
-			.attr("y2", (d) => yScale(d));
+  gridLines.exit().remove();
 
-		gridLinesY.exit().remove();
-	} else {
-		// Update existing grid lines
-		existingGridLines
-			.attr("x1", (d) => xScale(d))
-			.attr("y1", yScale.range()[0])
-			.attr("x2", (d) => xScale(d))
-			.attr("y2", yScale.range()[1]);
+  // Create vertical grid lines
+  const gridLinesY = svg
+    .append("g")
+    .selectAll(".grid-line-y")
+    .data(yScale.ticks());
 
-		// Update vertical grid lines
-		existingGridLines
-			.filter(".grid-line-y")
-			.attr("x1", xScale.range()[0])
-			.attr("y1", (d) => yScale(d))
-			.attr("x2", xScale.range()[1])
-			.attr("y2", (d) => yScale(d));
-	}
+  gridLinesY
+    .enter()
+    .append("line")
+    .attr("class", "grid-line-y")
+    .attr("stroke", "lightgray")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "4 4")
+    .attr("opacity", 0.2)
+    .attr("x1", xScale.range()[0])
+    .attr("y1", (d) => yScale(d))
+    .attr("x2", xScale.range()[1])
+    .attr("y2", (d) => yScale(d));
+
+  gridLinesY.exit().remove();
 }
 
 export function setupZoomBehavior() {
-	const zoom = d3Zoom
-		.zoom()
-		.scaleExtent([0.5, 10])
-		.on("zoom", (event) => {
-			const { transform } = event;
-			svg.selectAll("g").attr("transform", transform);
-			svg.selectAll("line").attr("stroke-width", 1 / transform.k);
-			svg.selectAll("circle").attr("r", 3 / transform.k);
-			svg.selectAll("text").attr("font-size", 12 / transform.k);
-		});
+  const zoom = d3Zoom
+    .zoom()
+    .scaleExtent([0.5, 10])
+    .on("zoom", (event) => {
+      const { transform } = event;
+      svg.selectAll("g")
+        .attr("transform", transform);
+      svg.selectAll(".point")
+        .attr("transform", transform)
+        .attr("r", 5 / transform.k)
+        .attr("stroke-width", 1 / transform.k);
+    });
 
-	svg.call(zoom); // Attach zoom behavior to the SVG
+  svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 }
 
-
 export function populateList() {
-	const pointsUl = document.getElementById("points-ul");
-	pointsUl.innerHTML = ""; // Clear existing content
+  const pointsUl = document.getElementById("points-ul");
+  pointsUl.innerHTML = "";
 
-	let storedFigures = useCartesianStore.getState().figures;
-	storedFigures.forEach((figure) => {
-		const li = document.createElement("li");
-		li.id = figure.id;
-		li.addEventListener("click", () => {
-			const id = figure.id;
-			console.log("Removing figure with ID", id);
-			if (!id) throw new Error("Invalid figure ID");
-			let figureSelected = svg.select(`[id="${id}"]`);
-			if (figureSelected.empty()) {
-				console.error("No figure found with ID", id);
-				return;
-			}
-			figureSelected.remove();
-			removeFigure(figure);
-			li.remove();
-		});
-		switch (figure.type) {
-			case 'point':
-				li.textContent = `${figure.constructor.name} ${figure.x.toFixed(1)}, ${figure.y.toFixed(1)}`;
-				break
-			case 'line':
-				li.textContent = `${figure.constructor.name} ${figure.x1.toFixed(1)}, ${figure.y1.toFixed(1)}, ${figure.x2.toFixed(1)}, ${figure.y2.toFixed(1)}`;
-				break
-			case 'circle':
-				li.textContent = `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
-				break
-			case 'parabola':
-				break
-			default:
-				console.error('Invalid figure type');
-		}	
-		pointsUl.appendChild(li);
-	});
+  const storedFigures = useCartesianStore.getState().figures;
+
+  storedFigures.forEach((figure) => {
+    const li = document.createElement("li");
+    li.id = figure.id;
+    li.addEventListener("click", () => handleFigureRemoval(figure, li));
+    li.textContent = getFigureLabel(figure);
+    pointsUl.appendChild(li);
+  });
+}
+
+function handleFigureRemoval(figure, listItem) {
+  const { id } = figure;
+  if (!id) throw new Error("Invalid figure ID");
+
+  const figureSelected = svg.select(`.figure[id="${id}"]`);
+  if (figureSelected.empty()) {
+    console.error("No figure found with ID", id);
+    return;
+  }
+
+  figureSelected.remove();
+  console.log("Removing figure", figure);
+  removeFigure(figure);
+  listItem.remove();
+}
+
+function getFigureLabel(figure) {
+  switch (figure.type) {
+    case 'point':
+      return `${figure.constructor.name} ${figure.x.toFixed(1)}, ${figure.y.toFixed(1)}`;
+    case 'line':
+      return `${figure.constructor.name} ${figure.x1.toFixed(1)}, ${figure.y1.toFixed(1)}, ${figure.x2.toFixed(1)}, ${figure.y2.toFixed(1)}`;
+    case 'circle':
+      return `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
+    case 'parabola':
+      return `${figure.constructor.name}`;
+    default:
+      console.error('Invalid figure type');
+      return '';
+  }
 }

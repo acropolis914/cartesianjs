@@ -2,8 +2,6 @@ import { svg, xScale, yScale } from "./main.js";
 import useCartesianStore from "./state.js";
 import { addFigure, removeAllFigures } from "./state.js";
 import { populateList } from "./render.js";
-import { addPoint } from "./points.js";
-import { removeAllPoints, deletePoint } from "./storeData.js";
 import { drawCircleOutline } from "./shapes.js";
 import { Point, Circle } from "./types.js";
 
@@ -52,17 +50,17 @@ export function addInteractions() {
 
     const addCircleBtn = document.getElementById('add-circle-btn');
     addCircleBtn.addEventListener('click', () => {
-        const input =prompt('Add circle with given coordinate x,y,r');
+        const input =prompt('Add circle with given parameters x,y,radius');
         if (input) {
             const coordinates = input.split(',');
             if (coordinates.length !== 3) {
-                console.error('Invalid input format. Please enter three integers separated by a comma.');
+                alert('Invalid input format. Please enter three integers separated by a comma.');
                 return;
             }
             
-            const x = parseInt(coordinates[0]);
-            const y = parseInt(coordinates[1]);
-            const r = parseInt(coordinates[2]);
+            const x = parseFloat(coordinates[0]);
+            const y = parseFloat(coordinates[1]);
+            const r = parseFloat(coordinates[2]);
             
             if (isNaN(x) || isNaN(y) || isNaN(r)) {
                 console.error('Invalid coordinates. All must be integers.');
@@ -71,10 +69,10 @@ export function addInteractions() {
             
             const circle = new Circle(x, y, r);
             addFigure(circle);
-            drawCircleOutline(x, y, r);
             populateList();
         } else {
             console.error('No input provided.');
+            alert('No input provided.');
         }
     });
 
@@ -83,6 +81,7 @@ export function addInteractions() {
         if (confirm("Reset the plane?")) {
             removeAllFigures();
             populateList();
+            svg.selectAll(".figure").remove();
         }
 
     });

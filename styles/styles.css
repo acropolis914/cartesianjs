@@ -50,7 +50,7 @@ body {
 
 /* Cartesian Container Styling */
 #cartesian-container {
-  flex: 2;
+  flex: 3;
   margin: 0;
   padding: 1%;
   max-height: 80vh;

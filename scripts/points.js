@@ -1,21 +1,17 @@
-import { savePoint } from './storeData.js';
-import { getAllPoints } from './storeData.js';
+// import { getAllPoints } from './storeData.js';
 import { svg, xScale, yScale} from './main.js';
 import { Point } from './types.js';
 
-export function addPoint(point) {
-    savePoint(point); 
-}
-
 
 export function plotPoint(point) {
+    let pointRadius = 5;
     const circle = svg.append("circle")
         .attr("cx", xScale(point.x))
         .attr("cy", yScale(point.y))
-        .attr("r", 3)
+        .attr("r", pointRadius)
         .attr("fill", "aliceblue")
         .attr("stroke", "black")
-        .attr("class", "point")
+        .attr("class", "point figure")
         .attr("id", point.id)
         .attr("alt", `(${point.x}, ${point.y})`);
 
@@ -24,8 +20,8 @@ export function plotPoint(point) {
             
             // Enlarge the circle
             circle.transition()
-                .duration(500)
-                .attr("r", 10)
+                .duration(300)
+                .attr("r",  pointRadius * 2)
                 .style("color", "green")
                 .style("filter", "brightness(150%)");
             
@@ -33,7 +29,7 @@ export function plotPoint(point) {
             setTimeout(() => {
                 circle.transition()
                     .duration(1000)
-                    .attr("r", 3); // Return to original radius
+                    .attr("r", pointRadius); // Return to original radius
             }, 1000);
         });
     }
@@ -46,9 +42,9 @@ export function removePoint(point) {
     }
 }
 
-export function updatePoints() {
-    svg.selectAll('.point').remove();
-    // svg.selectAll('circle').remove();
-    const storedPoints = getAllPoints();
-    storedPoints.forEach(point => plotPoint(point));
-}
+// export function updatePoints() {
+//     svg.selectAll('.point').remove();
+//     // svg.selectAll('circle').remove();
+//     const storedPoints = getAllPoints();
+//     storedPoints.forEach(point => plotPoint(point));
+// }
