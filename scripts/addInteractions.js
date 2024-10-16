@@ -1,4 +1,5 @@
-import { svg, xScale, yScale } from "./main.js";
+import { svg } from "./main.js";
+import { xScale, yScale } from "./render.js";
 import useCartesianStore from "./state.js";
 import { addFigure, removeAllFigures } from "./state.js";
 import { populateList } from "./render.js";

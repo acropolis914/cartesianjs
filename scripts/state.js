@@ -85,6 +85,7 @@ export function loadData() {
         }
     });
     useCartesianStore.setState({ figures: deserializedFigures });
+    addFigure(new Point(0, 0));
 }
 
 

@@ -1,5 +1,6 @@
 // import { getAllPoints } from './storeData.js';
-import { svg, xScale, yScale} from './main.js';
+import { svg} from './main.js';
+import { xScale, yScale } from './render.js';
 import { Point } from './types.js';
 
 

@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import { svg, xScale, yScale } from "./main.js";
+import { svg } from "./main.js";
+import { xScale, yScale } from "./render.js";
 
 export function drawLine(x1, y1, x2, y2) {
     svg.append("line")

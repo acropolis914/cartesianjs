@@ -6,7 +6,7 @@ import { handleResize } from "./handleResize.js";
 import * as d3 from "d3";
 
 export let STORE_KEY = "cartesian-plane-points";
-export let svg, xScale, yScale;
+export let svg;
 
 function run() {
 	gridSetup();
@@ -27,17 +27,8 @@ export function gridSetup() {
 		.append("svg")
 		.attr("width", width)
 		.attr("height", height);
-
-	let RATIO_WH = width / height;
-	xScale = d3
-		.scaleLinear()
-		.domain([-10 * RATIO_WH, 10 * RATIO_WH])
-		.range([0, width]);
-	yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
 	useCartesianStore.setState({
 		svg,
-		xScale,
-		yScale,
 	});
 }
 
