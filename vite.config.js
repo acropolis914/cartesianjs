@@ -1,14 +1,38 @@
 import { defineConfig } from 'vite';
 import FullReload from 'vite-plugin-full-reload';
 import legacy from '@vitejs/plugin-legacy';
+import postcssPresetEnv from 'postcss-preset-env'; // Added
+import autoprefixer from 'autoprefixer'; // Added
 
 export default defineConfig({
-  base: './', // Add this line to use relative paths
+  base: './',
   root: '.',
   publicDir: 'public',
+  // Added CSS configuration
+  css: {
+    postcss: {
+      plugins: [
+        postcssPresetEnv({
+          stage: 3,
+          browsers: ['iOS >= 9'],
+          features: {
+            'nesting-rules': true,
+            'custom-properties': true,
+            'custom-media-queries': true,
+            'gap-properties': true,
+          }
+        }),
+        autoprefixer({
+          flexbox: true,
+          grid: true,
+          overrideBrowserslist: ['iOS >= 9']
+        })
+      ]
+    }
+  },
   plugins: [
     legacy({
-      targets: ['ie >= 11', 'ios >= 9'],
+      targets: ['ios >= 9'],
       additionalLegacyPolyfills: [
         'regenerator-runtime/runtime',
         'core-js/features/promise',
@@ -25,7 +49,7 @@ export default defineConfig({
   build: {
     target: ['es2015', 'ios9'],
     sourcemap: true,
-    // minify: 'terser',
+    minify: 'terser',
     terserOptions: {
       safari10: true,
       keep_classnames: true,
