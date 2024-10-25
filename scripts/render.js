@@ -3,7 +3,7 @@ import * as d3Zoom from "d3-zoom";
 import useCartesianStore from "./state.js";
 import { removeFigure } from "./state.js";
 import { executeInOrder } from "./utils.js";
-import { svg } from "./main.js";
+import { svg, FIGURES_LIST } from "./main.js";
 import { loadData } from "./state.js";
 
 export let xScale, yScale;
@@ -14,8 +14,8 @@ let yAxis;
 let gridLinesX;
 let gridLinesY;
 let k;
-let xAxisGrid;
-let yAxisGrid;
+export let transformation;
+
 export function initialRender() {
 		setScales();
 		drawAxes();
@@ -74,7 +74,7 @@ export function drawGridLines(xScale, yScale) {
 		.enter()
 		.append("line")
 		.attr("class", "grid-line x")
-		.attr("stroke", "lightgray")
+		.attr("stroke", "lightgrey")
 		.attr("stroke-width", 1)
 		.attr("stroke-dasharray", "4 4")
 		.attr("opacity", 0.2)
@@ -89,7 +89,7 @@ export function drawGridLines(xScale, yScale) {
 		.enter()
 		.append("line")
 		.attr("class", "grid-line y")
-		.attr("stroke", "lightgray")
+		.attr("stroke", "lightgrey")
 		.attr("stroke-width", 1)
 		.attr("stroke-dasharray", "4 4")
 		.attr("opacity", 0.2)
@@ -107,6 +107,7 @@ export function setupZoomBehavior() {
 		.scaleExtent([0, 100])
 		.on("zoom", (event) => {
 			const { transform } = event;
+			transformation = transform;
 			const zx = transform
 				.rescaleX(xScale)
 				.interpolate(d3.interpolateRound); // Rescale x-axis
@@ -139,13 +140,15 @@ export function setupZoomBehavior() {
 				.attr("r", 5 / transform.k)
 				.attr("stroke-width", 1 / transform.k);
 			
-			svg.select(`.circle.figure`)
-				.attr("transform", transform)
-				.style("stroke-width", 2 / transform.k);
+			// svg.select(`.circle.figure`)
+			// 	.attr("transform", transform)
+			// 	.style("stroke-width", 2 / transform.k);
 			
-			svg.selectAll(".line.figure")
-				.attr("transform", transform)
-				.style("stroke-width", 2 / transform.k);
+			// svg.selectAll(".line.figure")
+			// 	.attr("transform", transform)
+			// 	.style("stroke-width", 2 / transform.k);
+			svg.selectAll(".figure").attr("transform", transform);
+			
 
 			drawGridLines(zx, zy);
 		});
@@ -154,8 +157,8 @@ export function setupZoomBehavior() {
 }
 
 export function populateList() {
-	const pointsUl = document.getElementById("points-ul");
-	pointsUl.innerHTML = "";
+	const figuresList = document.getElementById(FIGURES_LIST);
+	figuresList.innerHTML = "";
 
 	const storedFigures = useCartesianStore.getState().figures;
 
@@ -164,7 +167,7 @@ export function populateList() {
 		li.id = figure.id;
 		li.addEventListener("click", () => handleFigureRemoval(figure, li));
 		li.textContent = getFigureLabel(figure);
-		pointsUl.appendChild(li);
+		figuresList.appendChild(li);
 	});
 }
 
@@ -185,9 +188,9 @@ function handleFigureRemoval(figure, listItem) {
 function getFigureLabel(figure) {
 	switch (figure.type) {
 		case "point":
-			return `${figure.constructor.name} ${figure.x.toFixed(
+			return `(${figure.x.toFixed(
 				1
-			)}, ${figure.y.toFixed(1)}`;
+			)}, ${figure.y.toFixed(1)})`; //${figure.constructor.name} 
 		case "line":
 			return `${figure.constructor.name} ${figure.m.toFixed(1)}, ${figure.b.toFixed(1)}`;
 		case "circle":

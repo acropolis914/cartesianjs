@@ -7,6 +7,7 @@ import * as d3 from "d3";
 
 export let STORE_KEY = "cartesian-plane-points";
 export let svg;
+export let FIGURES_LIST = "figures-list";
 
 function run() {
 	gridSetup();
@@ -14,7 +15,7 @@ function run() {
 	addInteractions();
 	//handleResize();
 	//addmanypoints();
-	// drawSine(svg);
+	//drawSine();
 }
 
 export function gridSetup() {

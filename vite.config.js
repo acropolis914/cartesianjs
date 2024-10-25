@@ -11,7 +11,7 @@ export default defineConfig({
     minify: 'esbuild', // Specify minification options
 },
   server: {
-    port: Math.floor(Math.random() * (4000 - 3000 + 1)) + 3000,  // Specify the port to use
+    port: 3141,//Math.floor(Math.random() * (4000 - 3000 + 1)) + 3000,  // Specify the port to use
     open: true,
     hmr: false,
     // hmr: {

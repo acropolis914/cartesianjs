@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { svg } from "./main.js";
-import { xScale, yScale } from "./render.js";
+import { xScale, yScale, transformation } from "./render.js";
 
 export function drawLine(line) {
     let m = line.m;
@@ -11,6 +11,8 @@ export function drawLine(line) {
         .attr("x2", xScale(10000))
         .attr("y2", yScale(m * 10000 + b))
         .attr("id", line.id)
+        .attr("class", "line figure")
+        .attr("transform", transformation)
         .attr("class", "line figure")
         .style("stroke", "white")
         .style("stroke-width", "2px");
@@ -23,6 +25,7 @@ export function drawCircleOutline(circle) {
         .attr("r", xScale(circle.radius) - xScale(0))  // Set radius of circle
         .attr("id", circle.id)  // Set id of circle
         .attr("class", "circle figure")
+        .attr("transform", transformation)
         .style("stroke", "white")  // Set stroke color to black
         .style("stroke-width", "2px")  // Set stroke width to 2px
         .style("fill", "none");  // Remove fill color
@@ -47,7 +50,7 @@ function drawCircle(svg, xScale, yScale, x1, y1, radius) {
 }
 
 
-export function drawSine(svg) {
+export function drawSine() {
     const sineData = d3.range(-10,10, 0.1).map(x => ({ x, y: Math.sin(x)*5 }));
     const lineGenerator = d3.line()
         // @ts-ignore
@@ -57,6 +60,8 @@ export function drawSine(svg) {
     svg.append("path")
         .datum(sineData)
         .attr("d", lineGenerator)
+        .attr("transform", transformation)
+        .attr("class", "line figure")
         .attr("fill", "none")
         .attr("stroke", "yellow")
         .attr("stroke-width", 2);

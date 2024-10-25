@@ -66,7 +66,10 @@ export function removeAllFigures() {
 
 export function loadData() {
     const storedData = localStorage.getItem(localStorageKey);
-    if (!storedData) throw new Error('No stored data found');
+    if (!storedData) {
+        console.log('No stored data found');
+        return; 
+    }
     const { figures } = JSON.parse(storedData);
     const deserializedFigures = figures.map((fig) => {
         switch (fig.type) {
@@ -83,7 +86,7 @@ export function loadData() {
             case 'parabola':
                 return new Parabola(fig.a, fig.b, fig.c, fig.id);
             default:
-                return fig;
+                return fig
         }
     });
     useCartesianStore.setState({ figures: deserializedFigures });

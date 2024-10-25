@@ -5,6 +5,7 @@ import { addFigure, removeAllFigures } from "./state.js";
 import { populateList } from "./render.js";
 import { drawCircleOutline, drawLine } from "./shapes.js";
 import { Point, Circle, Line } from "./types.js";
+import { getRandomBetween } from "./utils.js";
 
 let state = useCartesianStore.getState();
 
@@ -79,7 +80,7 @@ export function addInteractions() {
 
     const addRandLineBtn = document.getElementById('add-random-line-btn');
     addRandLineBtn.addEventListener('click', () => {
-        const m = Math.random() * (xScale.domain()[1] - xScale.domain()[0]) + xScale.domain()[0];
+        const m = getRandomBetween(-3, 3)
         const b = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
         const line = new Line(m, b);
         addFigure(line);

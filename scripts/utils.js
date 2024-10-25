@@ -18,3 +18,7 @@ export function executeInOrder(...functions) {
 		return promise.then(() => fn());
 	}, Promise.resolve());
 }
+
+export function getRandomBetween(min, max) {
+    return Math.random() * (max - min) + min;
+}
