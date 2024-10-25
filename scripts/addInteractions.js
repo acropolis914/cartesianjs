@@ -1,5 +1,5 @@
 import { svg } from "./main.js";
-import { xScale, yScale } from "./render.js";
+import { updateList, xScale, yScale } from "./render.js";
 import useCartesianStore from "./state.js";
 import { addFigure, removeAllFigures } from "./state.js";
 import { populateList } from "./render.js";
@@ -49,7 +49,7 @@ export async function addInteractions() {
 			yScale.domain()[0];
 		const point = new Point(x, y);
 		addFigure(point);
-		populateList();
+		updateList();
 	});
 
 	const addCircleBtn = document.getElementById("add-circle-btn");

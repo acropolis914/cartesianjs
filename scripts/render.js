@@ -169,12 +169,52 @@ export function populateList() {
 	const storedFigures = useCartesianStore.getState().figures;
 
 	for (const figure of storedFigures) {
-        const li = document.createElement("li");
-        li.id = figure.id;
-        li.addEventListener("click", () => handleFigureRemoval(figure, li));
-        li.textContent = getFigureLabel(figure);
-        figuresList.appendChild(li);
-    }
+		const li = document.createElement("li");
+		li.id = figure.id;
+		li.addEventListener("click", () => li.classList.toggle("active"));
+		li.textContent = getFigureLabel(figure);
+
+		const exitButton = document.createElement("button");
+		const exitIcon = document.createElement("i");
+		exitIcon.className = "fas fa-times";
+		exitButton.appendChild(exitIcon);
+		exitButton.addEventListener("click", () => handleFigureRemoval(figure, li));
+		li.appendChild(exitButton);
+		figuresList.appendChild(li);
+	}
+}
+
+export function updateList() {
+	const figuresList = document.getElementById(FIGURES_LIST);
+
+	// Get the existing list items
+	const existingItems = figuresList.getElementsByTagName("li");
+
+	// Get the current stored figures
+	const storedFigures = useCartesianStore.getState().figures;
+
+	// Filter out new figures
+	const newFigures = storedFigures.filter(
+		(fig) => !Array.from(existingItems).some((item) => item.id === fig.id)
+	);
+
+	// Append new figures to the list
+	// biome-ignore lint/complexity/noForEach: <explanation>
+	newFigures.forEach((newFig) => {
+		const li = document.createElement("li");
+		li.id = newFig.id;
+		li.addEventListener("click", () => li.classList.toggle("active"));
+		li.textContent = getFigureLabel(newFig);
+
+		const exitButton = document.createElement("button");
+		const exitIcon = document.createElement("i");
+		exitIcon.className = "fas fa-times";
+		exitButton.appendChild(exitIcon);
+		exitButton.addEventListener("click", () => handleFigureRemoval(newFig, li));
+		li.appendChild(exitButton);
+
+		figuresList.appendChild(li);
+	});
 }
 
 function handleFigureRemoval(figure, listItem) {
@@ -195,8 +235,10 @@ function getFigureLabel(figure) {
 	switch (figure.type) {
 		case "point":
 			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`; //${figure.constructor.name}
-		case "line":
-			return `${figure.constructor.name} ${figure.m.toFixed(1)}, ${figure.b.toFixed(1)}`;
+		case "line": {
+			const termSymbol = figure.b >= 0 ? "+" : "-";
+			return `y = ${figure.m.toFixed(1)}x ${termSymbol} ${figure.b.toFixed(1).replace("-", "")}`; //${figure.constructor.name}
+		}
 		case "circle":
 			return `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
 		case "parabola":

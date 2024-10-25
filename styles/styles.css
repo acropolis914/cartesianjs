@@ -98,6 +98,8 @@ g {
   align-items: flex-start;
   align-content: flex-start;
   gap: 1%;
+
+  position: relative;
 }
 
 li {
@@ -110,14 +112,58 @@ li {
   max-height: 3ch;
   display: flex;
   text-wrap: nowrap;
+  flex-grow: 1;
   justify-content: center;
   align-items: center;
   padding: 3px;
+  position: relative;
+  z-index: 1;
+
+  transition: width 0.3s ease-in-out, background-color 0.3s;
+  letter-spacing: normal;
 }
 
-li:hover {
-  background-color: #417b8c;
+
+li:hover, li.active {
+  background-color: #1c3036 !important;
+  color: white !important;
+  letter-spacing: -.1ch !important;
+  border: 2px dotted #a0d5e5 !important;
+}
+
+li:hover > button, li.active > button {
+  flex: 1;
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+li > :not(button) {
+  flex:2;
+}
+
+li > button {
+  flex:1;
+  position: absolute;
+  /* Position the button on the right side */
+  right: 0;
+  top: 0;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  visibility: hidden;
+  opacity: 0;
+  background-color: #a64632;
   color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 0;
+  margin-left: .5ch;
+  padding: 0.1em;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Button Styles */
@@ -135,10 +181,28 @@ li:hover {
 
 #button-container button {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#button-container button > *{
+  box-shadow: #272727;
+}
+
+#button-container button > i {
+  font-size: 1.5em;
+}
+
+#button-container button > span {
+  font-size: .9em;
+  font-weight: bold;
+  margin-top: .5em;
 }
 
 button {
-  background-color: #417b8c;
+  background-color: #366472;
   color: white;
   margin: 0;
   border: none;

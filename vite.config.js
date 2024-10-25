@@ -7,7 +7,7 @@ import autoprefixer from 'autoprefixer'; // Added
 export default defineConfig({
   base: './',
   root: '.',
-  publicDir: 'public',
+  // publicDir: 'public',
   // Added CSS configuration
   css: {
     postcss: {
@@ -44,7 +44,7 @@ export default defineConfig({
       modernPolyfills: true,
       renderLegacyChunks: true,
     }),
-    FullReload(['**/*.js'])
+    FullReload(['**/*.js','**/*.html','**/*.css'])
   ],
   build: {
     target: ['es2015', 'ios9'],

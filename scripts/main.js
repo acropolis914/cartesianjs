@@ -12,6 +12,15 @@ export const STORE_KEY = "cartesian-plane-points";
 export let svg;
 export const FIGURES_LIST = "figures-list";
 
+// class CartesianPlane {
+// 	constructor (svg,figuresList){
+// 		this.svg = svg;
+// 		this.figuresList = figuresList;
+// 	}
+// // put here the run and setup methods
+
+// }
+
 function run() {
 	gridSetup();
 	initialRender();
@@ -37,12 +46,3 @@ export function gridSetup() {
 }
 
 run();
-
-// function addmanypoints() {
-//     for (let i=0; i <10; i++){
-//         const x = Math.random() * (xScale.domain()[1] - xScale.domain()[0]) + xScale.domain()[0];
-//         const y = Math.random() * (yScale.domain()[1] - yScale.domain()[0]) + yScale.domain()[0];
-//         const point = { x, y };
-//         addPoint(svg, xScale, yScale, point);
-//     }
-// }
