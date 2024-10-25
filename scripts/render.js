@@ -16,17 +16,15 @@ let gridLinesX;
 let gridLinesY;
 let k;
 
-
 export function initialRender() {
-		setScales();
-		drawAxes();
-		drawGridLines(xScale, yScale);
-		//createGrid,
-		setupZoomBehavior();
-		// renderOldPoints,
-		loadData();
-		populateList();
-
+	setScales();
+	drawAxes();
+	drawGridLines(xScale, yScale);
+	//createGrid,
+	setupZoomBehavior();
+	// renderOldPoints,
+	loadData();
+	populateList();
 }
 
 export function setScales() {
@@ -48,8 +46,9 @@ export function drawAxes() {
 		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
 
 	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
-	
-	svg.append("g")
+
+	svg
+		.append("g")
 		.attr("class", "x-axis")
 		.attr("transform", `translate(0,${height / 2})`)
 		.call(xAxis);
@@ -59,14 +58,14 @@ export function drawAxes() {
 		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
 
 	yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
-	svg.append("g")
+	svg
+		.append("g")
 		.attr("class", "y-axis")
 		.attr("transform", `translate(${width / 2},0)`)
 		.call(yAxis);
 }
 
 export function drawGridLines(xScale, yScale) {
-
 	// Remove old grid lines
 	svg.selectAll(".grid-line").remove();
 	// Create horizontal grid lines
@@ -101,7 +100,6 @@ export function drawGridLines(xScale, yScale) {
 	gridLinesY.exit().remove();
 }
 
-
 export function setupZoomBehavior() {
 	const zoom = d3Zoom
 		.zoom()
@@ -109,48 +107,54 @@ export function setupZoomBehavior() {
 		.on("zoom", (event) => {
 			const { transform } = event;
 			transformation = transform;
-			const zx = transform
-				.rescaleX(xScale)
-				.interpolate(d3.interpolateRound); // Rescale x-axis
-			const zy = transform
-				.rescaleY(yScale)
-				.interpolate(d3.interpolateRound);
+			const zx = transform.rescaleX(xScale).interpolate(d3.interpolateRound); // Rescale x-axis
+			const zy = transform.rescaleY(yScale).interpolate(d3.interpolateRound);
 			xScale.domain = zx.domain;
 			yScale.domain = zy.domain;
 
 			const transformX = (height * transform.k) / 2 + transform.y;
 			const transformY = (width * transform.k) / 2 + transform.x;
-			svg.selectAll(".x-axis")
+			svg
+				.selectAll(".x-axis")
 				.attr("transform", `translate(0,${transformX})`)
 				.call(xAxis.scale(zx));
 
-			svg.selectAll(".y-axis")
+			svg
+				.selectAll(".y-axis")
 				.attr("transform", `translate(${transformY},0)`)
 				.call(yAxis.scale(zy));
 
-			svg.selectAll(".grid-line.x")
+			svg
+				.selectAll(".grid-line.x")
 				.attr("x1", (d) => zx(d))
 				.attr("x2", (d) => zx(d));
 
-			svg.selectAll(".grid-line.y")
+			svg
+				.selectAll(".grid-line.y")
 				.attr("y1", (d) => zy(d))
 				.attr("y2", (d) => zy(d));
 
-			svg.selectAll(".point.figure")
+			svg
+				.selectAll(".point.figure")
 				.attr("transform", transform)
 				.attr("r", 5 / transform.k)
 				.attr("stroke-width", 1 / transform.k);
-			
+
 			// svg.select(`.circle.figure`)
 			// 	.attr("transform", transform)
 			// 	.style("stroke-width", 2 / transform.k);
-			
-			svg.selectAll(".line.figure")
+
+			svg
+				.selectAll(".line.figure")
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+
+			svg
+				.selectAll(".circle.figure")
 				.attr("transform", transform)
 				.style("stroke-width", 2 / transform.k);
 
 			svg.selectAll(".figure").attr("transform", transform);
-			
 
 			drawGridLines(zx, zy);
 		});
@@ -164,13 +168,13 @@ export function populateList() {
 
 	const storedFigures = useCartesianStore.getState().figures;
 
-	storedFigures.forEach((figure) => {
-		const li = document.createElement("li");
-		li.id = figure.id;
-		li.addEventListener("click", () => handleFigureRemoval(figure, li));
-		li.textContent = getFigureLabel(figure);
-		figuresList.appendChild(li);
-	});
+	for (const figure of storedFigures) {
+        const li = document.createElement("li");
+        li.id = figure.id;
+        li.addEventListener("click", () => handleFigureRemoval(figure, li));
+        li.textContent = getFigureLabel(figure);
+        figuresList.appendChild(li);
+    }
 }
 
 function handleFigureRemoval(figure, listItem) {
@@ -190,9 +194,7 @@ function handleFigureRemoval(figure, listItem) {
 function getFigureLabel(figure) {
 	switch (figure.type) {
 		case "point":
-			return `(${figure.x.toFixed(
-				1
-			)}, ${figure.y.toFixed(1)})`; //${figure.constructor.name} 
+			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`; //${figure.constructor.name}
 		case "line":
 			return `${figure.constructor.name} ${figure.m.toFixed(1)}, ${figure.b.toFixed(1)}`;
 		case "circle":

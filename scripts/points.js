@@ -1,49 +1,46 @@
 // import { getAllPoints } from './storeData.js';
-import { svg} from './main.js';
-import { transformation, xScale, yScale } from './render.js';
-import { Point } from './types.js';
-
+import { svg } from "./main.js";
+import { transformation, xScale, yScale } from "./render.js";
+import { Point } from "./types.js";
 
 export function plotPoint(point) {
-    let pointRadius = 5 /transformation.k;
-    const circle = svg.append("circle")
-        .attr("cx", xScale(point.x))
-        .attr("cy", yScale(point.y))
-        .attr("r", pointRadius )
-        .attr("transform", transformation)
-        .attr("fill", "aliceblue")
-        .attr("stroke", "black")
-        .attr("stroke-width", 1 / transformation.k)
-        .attr("class", "point figure")
-        .attr("id", point.id)
-        .attr("alt", `(${point.x}, ${point.y})`);
+	const pointRadius = 5 / transformation.k;
+	const circle = svg
+		.append("circle")
+		.attr("cx", xScale(point.x))
+		.attr("cy", yScale(point.y))
+		.attr("r", pointRadius)
+		.attr("transform", transformation)
+		.attr("fill", "aliceblue")
+		.attr("stroke", "black")
+		.attr("stroke-width", 1 / transformation.k)
+		.attr("class", "point figure")
+		.attr("id", point.id)
+		.attr("alt", `(${point.x}, ${point.y})`);
 
-
-    // Add click event to circle
-        const currentRadius = circle.attr("r");
-        circle.on('click', (event) => {
-            event.preventDefault(); // Prevent default behavior
-            // Enlarge the circle
-            circle.transition()
-                .duration(300)
-                .attr("r",  currentRadius * 2)
-                .style("color", "green")
-                .style("filter", "brightness(150%)");
-            // Return to original size after 1 second
-            setTimeout(() => {
-                circle.transition()
-                    .duration(1000)
-                    .attr("r", currentRadius); // Return to original radius
-            }, 1000);
-        });
-    }
-
+	// Add click event to circle
+	const currentRadius = circle.attr("r");
+	circle.on("click", (event) => {
+		event.preventDefault(); // Prevent default behavior
+		// Enlarge the circle
+		circle
+			.transition()
+			.duration(300)
+			.attr("r", currentRadius * 2)
+			.style("color", "green")
+			.style("filter", "brightness(150%)");
+		// Return to original size after 1 second
+		setTimeout(() => {
+			circle.transition().duration(1000).attr("r", currentRadius); // Return to original radius
+		}, 1000);
+	});
+}
 
 export function removePoint(point) {
-    const id = point.id;
-    if (id) {
-        svg.select(`[id="${id}"]`).remove();
-    }
+	const id = point.id;
+	if (id) {
+		svg.select(`[id="${id}"]`).remove();
+	}
 }
 
 // export function updatePoints() {

@@ -24,7 +24,7 @@ export default defineConfig({
   build: {
     target: ['es2015', 'ios9'],
     sourcemap: true,
-    minify: 'terser',
+    // minify: 'terser',
     terserOptions: {
       safari10: true,
       keep_classnames: true,

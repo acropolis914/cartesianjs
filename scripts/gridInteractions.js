@@ -1,1 +1,1 @@
-import {svg, xScale, yScale} from './main.js';
+import { svg, xScale, yScale } from "./main.js";

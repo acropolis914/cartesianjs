@@ -3,68 +3,74 @@ import { svg } from "./main.js";
 import { xScale, yScale, transformation } from "./render.js";
 
 export function drawLine(line) {
-    let m = line.m;
-    let b = line.b;
-    svg.append("line")
-        .attr("x1", xScale(-10000))
-        .attr("y1", yScale(m * -10000 + b))
-        .attr("x2", xScale(10000))
-        .attr("y2", yScale(m * 10000 + b))
-        .attr("id", line.id)
-        .attr("class", "line figure")
-        .attr("transform", transformation)
-        .attr("class", "line figure")
-        .style("stroke", "white")
-        .style("stroke-width", 2 / transformation.k);
+	const m = line.m;
+	const b = line.b;
+	svg
+		.append("line")
+		.attr("x1", xScale(-10000))
+		.attr("y1", yScale(m * -10000 + b))
+		.attr("x2", xScale(10000))
+		.attr("y2", yScale(m * 10000 + b))
+		.attr("id", line.id)
+		.attr("class", "line figure")
+		.attr("transform", transformation)
+		.attr("class", "line figure")
+		.style("stroke", "white")
+		.style("stroke-width", 2 / transformation.k);
 }
 
 export function drawCircleOutline(circle) {
-    svg.append("circle")
-        .attr("cx", xScale(circle.h))
-        .attr("cy", yScale(circle.k))
-        .attr("r", xScale(circle.radius) - xScale(0))  // Set radius of circle
-        .attr("id", circle.id)  // Set id of circle
-        .attr("class", "circle figure")
-        .attr("transform", transformation)
-        .style("stroke", "white")  // Set stroke color to black
-        .style("stroke-width", "2px")  // Set stroke width to 2px
-        .style("fill", "none");  // Remove fill color
+	svg
+		.append("circle")
+		.attr("cx", xScale(circle.h))
+		.attr("cy", yScale(circle.k))
+		.attr("r", xScale(circle.radius) - xScale(0)) // Set radius of circle
+		.attr("id", circle.id) // Set id of circle
+		.attr("class", "circle figure")
+		.attr("transform", transformation)
+		.style("stroke", "white") // Set stroke color to black
+		.style("stroke-width", 2 / transformation.k) // Set stroke width to 2px
+		.style("fill", "none"); // Remove fill color
 }
 
 export function drawRectangle(x1, y1, x2, y2) {
-    svg.append("rect")
-        .attr("x", xScale(x1))
-        .attr("y", yScale(y1))
-        .attr("width", xScale(x2) - xScale(x1))
-        .attr("height", yScale(y2) - yScale(y1))
-        .attr("fill", "green");
+	svg
+		.append("rect")
+		.attr("x", xScale(x1))
+		.attr("y", yScale(y1))
+		.attr("width", xScale(x2) - xScale(x1))
+		.attr("height", yScale(y2) - yScale(y1))
+		.attr("fill", "green");
 }
-
 
 function drawCircle(svg, xScale, yScale, x1, y1, radius) {
-    svg.append("circle")
-        .attr("cx", xScale(x1))
-        .attr("cy", yScale(y1))
-        .attr("r", xScale(radius) - xScale(0))
-        .attr("fill", "blue");
+	svg
+		.append("circle")
+		.attr("cx", xScale(x1))
+		.attr("cy", yScale(y1))
+		.attr("r", xScale(radius) - xScale(0))
+		.attr("fill", "blue");
 }
 
-
 export function drawSine() {
-    const sineData = d3.range(-10,10, 0.1).map(x => ({ x, y: Math.sin(x)*5 }));
-    const lineGenerator = d3.line()
-        // @ts-ignore
-        .x(d => xScale(d.x))
-        // @ts-ignore
-        .y(d => yScale(d.y));
-    svg.append("path")
-        .datum(sineData)
-        .attr("d", lineGenerator)
-        .attr("transform", transformation)
-        .attr("class", "line figure")
-        .attr("fill", "none")
-        .attr("stroke", "yellow")
-        .attr("stroke-width", 2);
+	const sineData = d3
+		.range(-10, 10, 0.1)
+		.map((x) => ({ x, y: Math.sin(x) * 5 }));
+	const lineGenerator = d3
+		.line()
+		// @ts-ignore
+		.x((d) => xScale(d.x))
+		// @ts-ignore
+		.y((d) => yScale(d.y));
+	svg
+		.append("path")
+		.datum(sineData)
+		.attr("d", lineGenerator)
+		.attr("transform", transformation)
+		.attr("class", "line figure")
+		.attr("fill", "none")
+		.attr("stroke", "yellow")
+		.attr("stroke-width", 2);
 }
 
 // export function drawCosine() {
@@ -79,5 +85,3 @@ export function drawSine() {
 //         .attr("stroke", "powderblue")
 //         .attr("stroke-width", 2);
 // }
-
-

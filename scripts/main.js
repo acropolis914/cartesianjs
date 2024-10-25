@@ -5,12 +5,12 @@ import { addInteractions } from "./addInteractions.js";
 import { handleResize } from "./handleResize.js";
 import * as d3 from "d3";
 
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-export let STORE_KEY = "cartesian-plane-points";
+export const STORE_KEY = "cartesian-plane-points";
 export let svg;
-export let FIGURES_LIST = "figures-list";
+export const FIGURES_LIST = "figures-list";
 
 function run() {
 	gridSetup();

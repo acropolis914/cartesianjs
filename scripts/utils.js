@@ -1,6 +1,6 @@
 // Utility functions
 export function getRandomColor() {
-	return "#" + Math.floor(Math.random() * 16777215).toString(16);
+	return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 }
 
 export function distance(p1, p2) {
@@ -20,12 +20,11 @@ export function executeInOrder(...functions) {
 }
 
 export function getRandomBetween(min, max) {
-    return Math.random() * (max - min) + min;
+	return Math.random() * (max - min) + min;
 }
 
-
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
 /**
  * iOS 9 compatible prompt that returns a Promise
@@ -33,12 +32,12 @@ import 'regenerator-runtime/runtime';
  * @return {Promise<string|null>} The user's input or null if cancelled
  */
 export const promptAsync = (message) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const result = prompt(message);
-            resolve(result);
-        }, 100);
-    });
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			const result = prompt(message);
+			resolve(result);
+		}, 100);
+	});
 };
 
 /**
@@ -47,10 +46,10 @@ export const promptAsync = (message) => {
  * @return {Promise<void>}
  */
 export const alertAsync = (message) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            alert(message);
-            resolve();
-        }, 100);
-    });
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			alert(message);
+			resolve();
+		}, 100);
+	});
 };
