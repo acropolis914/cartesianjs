@@ -3,6 +3,7 @@ import FullReload from 'vite-plugin-full-reload';
 import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig({
+  base: './', // Add this line to use relative paths
   root: '.',
   publicDir: 'public',
   plugins: [
@@ -34,7 +35,8 @@ export default defineConfig({
       output: {
         manualChunks: undefined
       }
-    }
+    },
+    outDir: './docs',
   },
   server: {
     port: 3141,
