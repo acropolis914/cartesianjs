@@ -6,17 +6,14 @@ import { populateList } from "./render.js";
 import { drawCircleOutline, drawLine } from "./shapes.js";
 import { Point, Circle, Line } from "./types.js";
 import { getRandomBetween } from "./utils.js";
+import { promptAsync } from "./utils.js";
 
 let state = useCartesianStore.getState();
 
-export function addInteractions() {
-    // Implement interaction logic here
-    // For example, adding click event listeners to add new points
-    // Add click listener to the add point button
+export async function addInteractions() {
     const addPointBtn = document.getElementById('add-point-btn');
-    addPointBtn.addEventListener('click', () => {
-        const input = prompt('Add point with given coordinate');
-        
+    addPointBtn.addEventListener('click', async () => {
+        const input = await promptAsync('Add point with given coordinate');
         
         if (input) {
             const coordinates = input.split(',');
@@ -51,8 +48,8 @@ export function addInteractions() {
     });
 
     const addCircleBtn = document.getElementById('add-circle-btn');
-    addCircleBtn.addEventListener('click', () => {
-        const input =prompt('Add circle with given parameters x,y,radius');
+    addCircleBtn.addEventListener('click', async () => {
+        const input = await promptAsync('Add circle with given parameters x,y,radius');
         if (input) {
             const coordinates = input.split(',');
             if (coordinates.length !== 3) {
@@ -94,8 +91,5 @@ export function addInteractions() {
             populateList();
             svg.selectAll(".figure").remove();
         }
-
     });
-
-
 }

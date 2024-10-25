@@ -1,30 +1,44 @@
-import { min } from 'd3';
 import { defineConfig } from 'vite';
-import FullReload from 'vite-plugin-full-reload'
+import FullReload from 'vite-plugin-full-reload';
+import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig({
-  root: '.',  // The root directory for the project (default is current directory)
-  publicDir: 'public',  // Specify the public directory (for static assets)
-  build: {
-    target: 'esnext',  // The target environment (modern browsers)
-    sourcemap: true,   // Generate source maps for easier debugging
-    minify: 'esbuild', // Specify minification options
-},
-  server: {
-    port: 3141,//Math.floor(Math.random() * (4000 - 3000 + 1)) + 3000,  // Specify the port to use
-    open: true,
-    hmr: false,
-    // hmr: {
-    //   protocol: 'ws',  // WebSocket-based HMR (default)
-    //   port: 3000,         // Keep error overlay enabled for visual feedback
-    //   fullReload: ['**/*.js']
-    // },
-  },
+  root: '.',
+  publicDir: 'public',
   plugins: [
+    legacy({
+      targets: ['ie >= 11', 'ios >= 9'],
+      additionalLegacyPolyfills: [
+        'regenerator-runtime/runtime',
+        'core-js/features/promise',
+        'core-js/features/object/assign',
+        'core-js/features/string/includes',
+        'core-js/features/array/includes'
+      ],
+      polyfills: true,
+      modernPolyfills: true,
+      renderLegacyChunks: true,
+    }),
     FullReload(['**/*.js'])
   ],
+  build: {
+    target: ['es2015', 'ios9'],
+    sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      safari10: true,
+      keep_classnames: true,
+      keep_fnames: true,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  },
+  server: {
+    port: 3141,
+    open: true,
+    hmr: false
+  }
 });
-
-
-
-

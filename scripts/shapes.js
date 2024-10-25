@@ -15,7 +15,7 @@ export function drawLine(line) {
         .attr("transform", transformation)
         .attr("class", "line figure")
         .style("stroke", "white")
-        .style("stroke-width", "2px");
+        .style("stroke-width", 2 / transformation.k);
 }
 
 export function drawCircleOutline(circle) {

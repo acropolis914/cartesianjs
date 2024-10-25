@@ -5,14 +5,15 @@ import { Point } from './types.js';
 
 
 export function plotPoint(point) {
-    let pointRadius = 5;
+    let pointRadius = 5 /transformation.k;
     const circle = svg.append("circle")
         .attr("cx", xScale(point.x))
         .attr("cy", yScale(point.y))
-        .attr("r", pointRadius)
+        .attr("r", pointRadius )
         .attr("transform", transformation)
         .attr("fill", "aliceblue")
         .attr("stroke", "black")
+        .attr("stroke-width", 1 / transformation.k)
         .attr("class", "point figure")
         .attr("id", point.id)
         .attr("alt", `(${point.x}, ${point.y})`);

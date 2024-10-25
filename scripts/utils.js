@@ -22,3 +22,35 @@ export function executeInOrder(...functions) {
 export function getRandomBetween(min, max) {
     return Math.random() * (max - min) + min;
 }
+
+
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+/**
+ * iOS 9 compatible prompt that returns a Promise
+ * @param {string} message - The message to display in the prompt
+ * @return {Promise<string|null>} The user's input or null if cancelled
+ */
+export const promptAsync = (message) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const result = prompt(message);
+            resolve(result);
+        }, 100);
+    });
+};
+
+/**
+ * iOS 9 compatible alert that returns a Promise
+ * @param {string} message - The message to display in the alert
+ * @return {Promise<void>}
+ */
+export const alertAsync = (message) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            alert(message);
+            resolve();
+        }, 100);
+    });
+};

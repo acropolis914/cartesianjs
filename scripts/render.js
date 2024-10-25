@@ -7,6 +7,7 @@ import { svg, FIGURES_LIST } from "./main.js";
 import { loadData } from "./state.js";
 
 export let xScale, yScale;
+export let transformation;
 let height;
 let width;
 let xAxis;
@@ -14,7 +15,7 @@ let yAxis;
 let gridLinesX;
 let gridLinesY;
 let k;
-export let transformation;
+
 
 export function initialRender() {
 		setScales();
@@ -144,9 +145,10 @@ export function setupZoomBehavior() {
 			// 	.attr("transform", transform)
 			// 	.style("stroke-width", 2 / transform.k);
 			
-			// svg.selectAll(".line.figure")
-			// 	.attr("transform", transform)
-			// 	.style("stroke-width", 2 / transform.k);
+			svg.selectAll(".line.figure")
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+
 			svg.selectAll(".figure").attr("transform", transform);
 			
 
