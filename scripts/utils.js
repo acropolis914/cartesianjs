@@ -23,6 +23,14 @@ export function getRandomBetween(min, max) {
 	return Math.random() * (max - min) + min;
 }
 
+export function getScaledRadius(baseRadius, transformation) {
+    return baseRadius / (transformation?.k || 1);
+}
+
+export function getStrokeWidth(baseWidth, transformation) {
+    return baseWidth / (transformation?.k || 1);
+}
+
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 

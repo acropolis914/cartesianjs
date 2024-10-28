@@ -1,13 +1,13 @@
-import { svg } from "./main.js";
 import { updateList, xScale, yScale } from "./render.js";
 import useCartesianStore from "./state.js";
-import { addFigure, removeAllFigures } from "./state.js";
+import { addFigure, removeAllFigures } from "./dataManager.js";
 import { populateList } from "./render.js";
 import { Point, Circle, Line } from "./types.js";
 import { getRandomBetween } from "./utils.js";
 import { promptAsync } from "./utils.js";
 
 const state = useCartesianStore.getState();
+const { svg } = state;
 
 export async function addInteractions() {
 	const addPointBtn = document.getElementById("add-point-btn");

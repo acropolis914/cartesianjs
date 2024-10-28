@@ -1,13 +1,14 @@
 import * as d3 from "d3";
 import * as d3Zoom from "d3-zoom";
 import useCartesianStore from "./state.js";
-import { removeFigure } from "./state.js";
+import { removeFigure } from "./dataManager.js";
 import { executeInOrder } from "./utils.js";
-import { svg, FIGURES_LIST } from "./main.js";
-import { loadData } from "./state.js";
+import { loadAndPlotData } from "./dataManager.js";
+import { gridSetup } from "./state.js";
+// import { handleResize } from "./handleResize.js";
+import { FIGURES_LIST } from "./constants.js";
 
 export let xScale, yScale;
-export let transformation;
 let height;
 let width;
 let xAxis;
@@ -15,16 +16,21 @@ let yAxis;
 let gridLinesX;
 let gridLinesY;
 let k;
+const state = useCartesianStore;
+let svg;
 
 export function initialRender() {
+	svg = gridSetup();
+	state.setState({ svg });
 	setScales();
 	drawAxes();
 	drawGridLines(xScale, yScale);
-	//createGrid,
+
 	setupZoomBehavior();
-	// renderOldPoints,
-	loadData();
+
+	loadAndPlotData();
 	populateList();
+	console.log(svg);
 }
 
 export function setScales() {
@@ -36,39 +42,35 @@ export function setScales() {
 		.domain([-10 / k, 10 / k])
 		.range([0, width]);
 	yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
+	state.setState({ xScale, yScale });
 }
 
 export function drawAxes() {
 	svg.selectAll("text.origin").remove();
 
-	// Draw X-axis
 	const xTicks =
 		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
 
 	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
 
-	svg
-		.append("g")
+	svg.append("g")
 		.attr("class", "x-axis")
 		.attr("transform", `translate(0,${height / 2})`)
 		.call(xAxis);
 
-	// Draw Y-axis
 	const yTicks =
 		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
 
 	yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
-	svg
-		.append("g")
+	svg.append("g")
 		.attr("class", "y-axis")
 		.attr("transform", `translate(${width / 2},0)`)
 		.call(yAxis);
 }
 
 export function drawGridLines(xScale, yScale) {
-	// Remove old grid lines
 	svg.selectAll(".grid-line").remove();
-	// Create horizontal grid lines
+
 	gridLinesX = svg.append("g").selectAll(".grid-line.x").data(xScale.ticks());
 	gridLinesX
 		.enter()
@@ -83,7 +85,7 @@ export function drawGridLines(xScale, yScale) {
 		.attr("x2", (d) => xScale(d))
 		.attr("y2", yScale.range()[1]);
 	gridLinesX.exit().remove();
-	// Create vertical grid lines
+
 	gridLinesY = svg.append("g").selectAll(".grid-line.y").data(yScale.ticks());
 	gridLinesY
 		.enter()
@@ -106,51 +108,44 @@ export function setupZoomBehavior() {
 		.scaleExtent([0, 100])
 		.on("zoom", (event) => {
 			const { transform } = event;
-			transformation = transform;
-			const zx = transform.rescaleX(xScale).interpolate(d3.interpolateRound); // Rescale x-axis
-			const zy = transform.rescaleY(yScale).interpolate(d3.interpolateRound);
+			state.setState({transformation : transform});
+			const zx = transform
+				.rescaleX(xScale)
+				.interpolate(d3.interpolateRound);
+			const zy = transform
+				.rescaleY(yScale)
+				.interpolate(d3.interpolateRound);
 			xScale.domain = zx.domain;
 			yScale.domain = zy.domain;
 
 			const transformX = (height * transform.k) / 2 + transform.y;
 			const transformY = (width * transform.k) / 2 + transform.x;
-			svg
-				.selectAll(".x-axis")
+			svg.selectAll(".x-axis")
 				.attr("transform", `translate(0,${transformX})`)
 				.call(xAxis.scale(zx));
 
-			svg
-				.selectAll(".y-axis")
+			svg.selectAll(".y-axis")
 				.attr("transform", `translate(${transformY},0)`)
 				.call(yAxis.scale(zy));
 
-			svg
-				.selectAll(".grid-line.x")
+			svg.selectAll(".grid-line.x")
 				.attr("x1", (d) => zx(d))
 				.attr("x2", (d) => zx(d));
 
-			svg
-				.selectAll(".grid-line.y")
+			svg.selectAll(".grid-line.y")
 				.attr("y1", (d) => zy(d))
 				.attr("y2", (d) => zy(d));
 
-			svg
-				.selectAll(".point.figure")
+			svg.selectAll(".point.figure")
 				.attr("transform", transform)
 				.attr("r", 5 / transform.k)
 				.attr("stroke-width", 1 / transform.k);
 
-			// svg.select(`.circle.figure`)
-			// 	.attr("transform", transform)
-			// 	.style("stroke-width", 2 / transform.k);
-
-			svg
-				.selectAll(".line.figure")
+			svg.selectAll(".line.figure")
 				.attr("transform", transform)
 				.style("stroke-width", 2 / transform.k);
 
-			svg
-				.selectAll(".circle.figure")
+			svg.selectAll(".circle.figure")
 				.attr("transform", transform)
 				.style("stroke-width", 2 / transform.k);
 
@@ -178,7 +173,9 @@ export function populateList() {
 		const exitIcon = document.createElement("i");
 		exitIcon.className = "fas fa-times";
 		exitButton.appendChild(exitIcon);
-		exitButton.addEventListener("click", () => handleFigureRemoval(figure, li));
+		exitButton.addEventListener("click", () =>
+			handleFigureRemoval(figure, li)
+		);
 		li.appendChild(exitButton);
 		figuresList.appendChild(li);
 	}
@@ -186,35 +183,29 @@ export function populateList() {
 
 export function updateList() {
 	const figuresList = document.getElementById(FIGURES_LIST);
-
-	// Get the existing list items
 	const existingItems = figuresList.getElementsByTagName("li");
-
-	// Get the current stored figures
 	const storedFigures = useCartesianStore.getState().figures;
 
-	// Filter out new figures
 	const newFigures = storedFigures.filter(
 		(fig) => !Array.from(existingItems).some((item) => item.id === fig.id)
 	);
 
-	// Append new figures to the list
-	// biome-ignore lint/complexity/noForEach: <explanation>
-	newFigures.forEach((newFig) => {
+	for (const figure of newFigures) {
 		const li = document.createElement("li");
-		li.id = newFig.id;
+		li.id = figure.id;
 		li.addEventListener("click", () => li.classList.toggle("active"));
-		li.textContent = getFigureLabel(newFig);
+		li.textContent = getFigureLabel(figure);
 
 		const exitButton = document.createElement("button");
 		const exitIcon = document.createElement("i");
 		exitIcon.className = "fas fa-times";
 		exitButton.appendChild(exitIcon);
-		exitButton.addEventListener("click", () => handleFigureRemoval(newFig, li));
+		exitButton.addEventListener("click", () =>
+			handleFigureRemoval(figure, li)
+		);
 		li.appendChild(exitButton);
-
 		figuresList.appendChild(li);
-	});
+	}
 }
 
 function handleFigureRemoval(figure, listItem) {
@@ -234,10 +225,12 @@ function handleFigureRemoval(figure, listItem) {
 function getFigureLabel(figure) {
 	switch (figure.type) {
 		case "point":
-			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`; //${figure.constructor.name}
+			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`;
 		case "line": {
 			const termSymbol = figure.b >= 0 ? "+" : "-";
-			return `y = ${figure.m.toFixed(1)}x ${termSymbol} ${figure.b.toFixed(1).replace("-", "")}`; //${figure.constructor.name}
+			return `y = ${figure.m.toFixed(1)}x ${termSymbol} ${figure.b
+				.toFixed(1)
+				.replace("-", "")}`;
 		}
 		case "circle":
 			return `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
