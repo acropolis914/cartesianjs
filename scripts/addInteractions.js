@@ -17,7 +17,7 @@ export async function addInteractions() {
 		if (input) {
 			const coordinates = input.split(",");
 			if (coordinates.length !== 2) {
-				console.error(
+				alert(
 					"Invalid input format. Please enter two integers separated by a comma.",
 				);
 				return;
@@ -71,7 +71,7 @@ export async function addInteractions() {
 			const r = Number.parseFloat(coordinates[2]);
 
 			if (Number.isNaN(x) || Number.isNaN(y) || Number.isNaN(r)) {
-				console.error("Invalid coordinates. All must be integers.");
+				alert("Invalid coordinates. All must be numbers.");
 				return;
 			}
 
@@ -79,7 +79,6 @@ export async function addInteractions() {
 			addFigure(circle);
 			populateList();
 		} else {
-			console.error("No input provided.");
 			alert("No input provided.");
 		}
 	});
@@ -100,7 +99,7 @@ export async function addInteractions() {
 		if (confirm("Reset the plane?")) {
 			removeAllFigures();
 			populateList();
-			svg.selectAll(".figure").remove();
+			useCartesianStore.getState().svg.selectAll(".figure").remove();
 		}
 	});
 }
