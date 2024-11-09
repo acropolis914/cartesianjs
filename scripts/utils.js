@@ -1,4 +1,13 @@
 // Utility functions
+
+export async function loadTemplate() {
+	const response = await fetch("/scripts/cartesian-plane.html");
+	const text = await response.text();
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(text, "text/html");
+	return doc.getElementById("cartesian-plane-template").innerHTML;
+}
+
 export function getRandomColor() {
 	return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 }
@@ -13,22 +22,16 @@ export function generateShortID() {
 	return randomPart + timePart;
 }
 
-export function executeInOrder(...functions) {
-	functions.reduce((promise, fn) => {
-		return promise.then(() => fn());
-	}, Promise.resolve());
-}
-
 export function getRandomBetween(min, max) {
 	return Math.random() * (max - min) + min;
 }
 
 export function getScaledRadius(baseRadius, transformation) {
-    return baseRadius / (transformation?.k || 1);
+	return baseRadius / (transformation?.k || 1);
 }
 
 export function getStrokeWidth(baseWidth, transformation) {
-    return baseWidth / (transformation?.k || 1);
+	return baseWidth / (transformation?.k || 1);
 }
 
 import "core-js/stable";

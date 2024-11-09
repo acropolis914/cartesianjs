@@ -1,54 +1,51 @@
-import useCartesianStore, {gridSetup} from "./state.js";
-import { initialRender } from "./render.js";
-import { addInteractions } from "./addInteractions.js";
-import { FIGURES_LIST } from "./constants.js";
-import { executeInOrder } from "./utils.js";
-import * as d3 from "d3";
 
+import { LitElement, html } from "lit";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
+import { loadTemplate } from "./utils.js";
+import { loadAndPlotData } from "./dataManager.js";
+import { createInstanceStore } from "./state.js";
+import { initialRender } from "./render.js";
+import { addInteractions } from "./addInteractions.js";
 
+class CartesianPlane extends LitElement {
+	static properties ={
+		id: { type: String },
+		domain: { type: Array, attribute:"domain"},
+	}
 
-// class CartesianPlane {
-// 	constructor (parentElement, storageKey){
-// 		this.parentElement = parentElement;
-// 		this.storageKey = storageKey
-// 		this.gridSetup();
-// 		this.render();
-// 	}
-// 	gridSetup() {
-// 		const svgContainer = document.getElementById("svg-container");
-// 		const width = svgContainer.clientWidth;
-// 		const height = svgContainer.clientHeight;
-	
-// 		const svg = d3
-// 			.select("#svg-container")
-// 			.append("svg")
-// 			.attr("width", width)
-// 			.attr("height", height);
-// 		useCartesianStore.setState({
-// 			svg,
-// 		});
-// 	}
-// 	render(){
-// 		gridSetup();
-// 		initialRender();
-// 		addInteractions();
-// 	}
-// }
+	constructor(){
+		super();
+		this.attachShadow({mode: 'open'});
+		this.domain = this.domain || [-10,10]
+	}
 
-function run() {
-	// executeInOrder(
-	// gridSetup,
-	// initialRender,
-	// addInteractions
-	// )
-	// gridSetup();
-	initialRender();
-	addInteractions();
-	//handleResize();
-	//addmanypoints();
-	//drawSine();
+	connectedCallback(){
+		super.connectedCallback();
+		console.log(this.domain);
+		this.store= createInstanceStore(this.id);
+		this.populate();
+	}
+
+	async render() {
+		this.shadowRoot.innerHTML = await loadTemplate();
+		const [svg, xScale, yScale] = initialRender( this.shadowRoot , this.store);
+		if (svg && xScale && yScale){ 
+			this.store.setState({svg: svg});
+			this.store.setState({xScale: xScale});
+			this.store.setState({yScale: yScale});
+		};
+		addInteractions(this.shadowRoot, this.store);
+	}
+
+	populate() {
+		// biome-ignore lint/style/useConst: <explanation>
+		let deserializedFigures = loadAndPlotData();
+		this.store.setState({figures: deserializedFigures});
+	}
+
 }
 
-document.addEventListener( 'DOMContentLoaded', () => run())
+customElements.define("cartesian-plane", CartesianPlane);
+
+export default CartesianPlane;

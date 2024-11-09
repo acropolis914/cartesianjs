@@ -1,0 +1,60 @@
+<template id="cartesian-plane-template">
+    <style>
+        /* :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+        } */
+        .cartesian-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+        }
+        #figures-container {
+            width: 200px;
+            padding: 1rem;
+            background-color: rgb(55, 55, 55);
+        }
+        #svg-container {
+            width: 200px;
+            flex: 1;
+            background: #1a1a1a;
+        }
+        .figure {
+            stroke: white;
+        }
+        .figures-list {
+            list-style: none;
+            padding: 0;
+        }
+        .figures-list li {
+            color: white;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            margin: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 1ch;
+        }
+        g {
+            color: rgb(204, 204, 204);
+        }
+    </style>
+    <div class="cartesian-container">
+        <div id="figures-container">
+            <h2>Figures</h2>
+            <ul class="figures-list"></ul>
+            <div class="button-container">
+                <button type="button" class="add-point-btn">Add Point</button>
+                <button type="button" class="add-random-point-btn">Random Point</button>
+                <button type="button" class="add-circle-btn">Add Circle</button>
+                <button type="button" class="add-random-line-btn">Random Line</button>
+                <button type="button" class="clear-all-btn">Clear All</button>
+            </div>
+        </div>
+        <div id="svg-container"></div>
+    </div>
+</template>

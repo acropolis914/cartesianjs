@@ -1,0 +1,23 @@
+html {
+    font-size: 62.5%;
+    font-family: 'Courier New', Courier, monospace;
+}
+body {
+    margin: 1rem;
+    padding: 0;
+    background-color: #b9b9b9;
+    color: rgb(46, 46, 46);
+}
+
+cartesian-plane {
+    display: block;
+    height: 50rem;
+    width: calc(100%-2rem);
+    margin: 1rem;
+    -o-border-radius: 1ch ;
+    -webkit-border-radius: 1ch ;
+    -moz-border-radius: 1ch ;
+    -ms-border-radius: 1ch ;
+    border-radius: 1ch ;
+    overflow: hidden;
+}

@@ -1,54 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Cartesian Plane Implementation</title>
-    <link rel="preload" href="./styles/styles.css" as="style" />
-    <link rel="stylesheet" href="./styles/styles.css" />
-    <link rel="stylesheet" href="./fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="./fontawesome/css/regular.min.css" />
-    <script>
-        let FF_FOUC_FIX;
-    </script>
-</head>
-<body>
-    <script>0</script>
-    <div id="main-container">
-        <div id="figures-container">
-            <h2>Figures</h2>
-            <ul id="figures-list"></ul>
-            <div id="button-container">
-                <button type="button" id="add-point-btn">
-                    <i class="fas fa-arrows-to-dot"></i>
-                    <span>Add Point</span>
-                </button>
-                <button type="button" id="add-random-point-btn">
-                    <i class="fas fa-arrows-turn-to-dots"></i>
-                    <span>Random Point</span>
-                </button>
-                <button type="button" id="add-circle-btn">
-                    <i class="fas fa-circle-notch"></i>
-                    <span>Circle</span>
-                </button>
-                <button type="button" id="add-random-line-btn">
-                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
-                    <span>Random Line</span>
-                </button>
-                <button type="button" id="remove-points-btn">
-                    <i class="fas fa-toilet-paper"></i>
-                    <span>Clear Shit</span>
-                </button>
-            </div>
-        </div>
-        
-        <div id="cartesian-container">
-            <div id="svg-container"></div>
-        </div>
-    </div>
-
-    <script type="module" src="./scripts/main.js"></script>
-</body>
-
-
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CartesianPlane</title>
+        <link rel="stylesheet" href="./styles/normalize.css">
+        <link rel="stylesheet" href="./styles/index.css">
+    </head>
+    <body>
+        <h1>Cartesian Plane</h1>
+        <cartesian-plane id="cartesian-demo" domain="[-10,12]"></cartesian-plane>
+        <cartesian-plane></cartesian-plane>
+        <cartesian-plane></cartesian-plane>
+        <cartesian-plane></cartesian-plane>
+        <cartesian-plane></cartesian-plane>
+        <cartesian-plane></cartesian-plane>
+        <script type="module" src="./scripts/main.js"></script>
+    </body>
 </html>
