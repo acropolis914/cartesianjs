@@ -6,62 +6,50 @@ import { loadAndPlotData } from "./dataManager.js";
 // import { handleResize } from "./handleResize.js";
 // import { FIGURES_LIST } from "./constants.js";
 
-let documentRoot;
-let svg;
-let xScale;
-let yScale;
-
-let height;
-let width;
 let xAxis;
 let yAxis;
 let gridLinesX;
 let gridLinesY;
-let k;
 
 export function initialRender(root, store) {
-	gridSetup(root);
-	setScales();
-	drawAxes();
+	const svg = gridSetup(root);
+	const { xScale, yScale, height, width } = setScales(root, store);
+	drawAxes(svg, xScale, yScale, height, width);
 	drawGridLines(svg, xScale, yScale);
-	setupZoomBehavior(root);
-	populateList(root, store);
+	setupZoomBehavior(svg, root, store, xScale, yScale, height, width);
+	populateList(svg, root, store);
 	return [svg, xScale, yScale];
-}
-
-export function getSVG() {
-	return svg;
-}
-
-export function getScales() {
-	return { xScale, yScale };
 }
 
 function gridSetup(root) {
 	const width = root.querySelector("#svg-container").offsetWidth;
 	const height = root.querySelector("#svg-container").offsetHeight;
 
-	svg = d3
+	const svg = d3
 		.select(root)
 		.select("#svg-container")
 		.append("svg")
 		.attr("width", width)
 		.attr("height", height);
+	return svg;
 }
 
-function setScales() {
-	height = svg.attr("height");
-	width = svg.attr("width");
-	k = height / width;
+function setScales(root, store) {
+	const svg = d3.select(root).select("#svg-container").select("svg");
+	const height = Number(svg.attr("height"));
+	const width = Number(svg.attr("width"));
+	const k = Number(height / width);
 
-	xScale = d3
+	const xScale = d3
 		.scaleLinear()
 		.domain([-10 / k, 10 / k])
 		.range([0, width]);
-	yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
+	const yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
+
+	return { xScale, yScale, height, width };
 }
 
-function drawAxes() {
+function drawAxes(svg, xScale, yScale, height, width) {
 	svg.selectAll("text.origin").remove();
 
 	const xTicks =
@@ -69,7 +57,8 @@ function drawAxes() {
 
 	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
 
-	svg.append("g")
+	svg
+		.append("g")
 		.attr("class", "x-axis")
 		.attr("transform", `translate(0,${height / 2})`)
 		.call(xAxis);
@@ -78,7 +67,8 @@ function drawAxes() {
 		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
 
 	yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
-	svg.append("g")
+	svg
+		.append("g")
 		.attr("class", "y-axis")
 		.attr("transform", `translate(${width / 2},0)`)
 		.call(yAxis);
@@ -118,19 +108,16 @@ function drawGridLines(svg, xScale, yScale) {
 	gridLinesY.exit().remove();
 }
 
-function setupZoomBehavior(root) {
+function setupZoomBehavior(svg, root, store, xScale, yScale, height, width) {
 	const svg_element = d3.select(root).select("#svg-container").select("svg");
 	const zoom = d3Zoom
 		.zoom()
 		.scaleExtent([0, 100])
 		.on("zoom", (event) => {
 			const { transform } = event;
-			const zx = transform
-				.rescaleX(xScale)
-				.interpolate(d3.interpolateRound);
-			const zy = transform
-				.rescaleY(yScale)
-				.interpolate(d3.interpolateRound);
+			store.setState({ transformation: transform });
+			const zx = transform.rescaleX(xScale).interpolate(d3.interpolateRound);
+			const zy = transform.rescaleY(yScale).interpolate(d3.interpolateRound);
 			xScale.domain = zx.domain;
 			yScale.domain = zy.domain;
 
@@ -180,7 +167,7 @@ function setupZoomBehavior(root) {
 	svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 }
 
-export function populateList(root, store) {
+export function populateList(svg, root, store) {
 	const figuresList = root.querySelector(".figures-list");
 	figuresList.innerHTML = "";
 
@@ -202,7 +189,7 @@ export function populateList(root, store) {
 		exitIcon.className = "fas fa-times";
 		exitButton.appendChild(exitIcon);
 		exitButton.addEventListener("click", () =>
-			handleFigureRemoval(figure, li)
+			handleFigureRemoval(svg, figure, li),
 		);
 		li.appendChild(exitButton);
 		figuresList.appendChild(li);
@@ -210,13 +197,14 @@ export function populateList(root, store) {
 }
 
 export function updateList(root, store) {
+	const svg = store.getState().svg;
 	const figuresList = root.querySelector(".figures-list");
-	const existingItems = figuresList.querySelector("li");
+	const existingItems =  Array.from(figuresList.querySelectorAll("li"));
 	const storedFigures = store.getState().figures;
 
-	const newFigures = storedFigures.filter(
-		(fig) => !Array.from(existingItems).some((item) => item.id === fig.id)
-	);
+	const newFigures = storedFigures.filter((fig) => {
+		return !existingItems.some((item) => item.id === fig.id);
+	});
 
 	for (const figure of newFigures) {
 		const li = document.createElement("li");
@@ -229,14 +217,14 @@ export function updateList(root, store) {
 		exitIcon.className = "fas fa-times";
 		exitButton.appendChild(exitIcon);
 		exitButton.addEventListener("click", () =>
-			handleFigureRemoval(figure, li)
+			handleFigureRemoval(svg, store, figure, li),
 		);
 		li.appendChild(exitButton);
 		figuresList.appendChild(li);
 	}
 }
 
-function handleFigureRemoval(figure, listItem) {
+function handleFigureRemoval(svg, store, figure, listItem) {
 	const { id } = figure;
 	if (!id) throw new Error("Invalid figure ID");
 
@@ -246,7 +234,7 @@ function handleFigureRemoval(figure, listItem) {
 	}
 
 	figureSelected.remove();
-	removeFigure(figure);
+	removeFigure(store,figure);
 	listItem.remove();
 }
 

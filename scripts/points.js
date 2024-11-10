@@ -1,8 +1,10 @@
 import { getScaledRadius } from "./utils.js";
 
-export function plotPoint(point) {
-    const { svg, xScale, yScale, transformation } = useCartesianStore.getState();
-    if (!svg || !xScale || !yScale) return;
+export function plotPoint(store, point) {
+    const svg = store.getState().svg;
+    const xScale = store.getState().xScale;
+    const yScale = store.getState().yScale;
+    const transformation = store.getState().transformation;
 
     const pointRadius = getScaledRadius(5, transformation);
     const circle = svg
@@ -21,8 +23,8 @@ export function plotPoint(point) {
     addPointInteraction(circle, pointRadius);
 }
 
-export function removePoint(point) {
-    const { svg } = useCartesianStore.getState();
+export function removePoint(store,point) {
+    const { svg } = store.getState();
     if (point.id) {
         svg.select(`[id="${point.id}"]`).remove();
     }

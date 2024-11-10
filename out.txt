@@ -1,0 +1,867 @@
+// addInteractions.js
+
+import { updateList} from "./render.js";
+
+
+import { addFigure, removeAllFigures } from "./dataManager.js";
+import { populateList } from "./render.js";
+import { Point, Circle, Line } from "./types.js";
+import { getRandomBetween } from "./utils.js";
+import { promptAsync } from "./utils.js";
+
+export async function addInteractions(root, store) {
+	const svg = store.getState().svg;
+	const xScale = store.getState().xScale;
+	const yScale = store.getState().yScale;
+	const addPointBtn = root.querySelector(".add-point-btn");
+	if (addPointBtn) {
+		addPointBtn.addEventListener("click", async () => {
+			const input = await promptAsync("Add point with given coordinates (x,y)");
+
+			if (!input) {
+				console.log("No input provided.");
+				return;
+			}
+
+			const coordinates = input.split(",");
+			const x = Number.parseFloat(coordinates[0]);
+			const y = Number.parseFloat(coordinates[1]);
+
+			if (coordinates.length !== 2) {
+				alert(
+					"Invalid input format. Please enter two integers separated by a comma.",
+				);
+				return;
+			}
+
+			if ((!x) || (!y)) {
+				console.error("Invalid coordinates.");
+				return;
+			}
+
+			const point = new Point(x, y);
+			addFigure(store, point);
+			//populateList();
+		});
+	}
+
+	const addRandPointBtn = root.querySelector(".add-random-point-btn");
+	if (addPointBtn) {
+		addRandPointBtn.addEventListener("click", () => {
+			const x =
+				Math.random() * (xScale.domain()[1] - xScale.domain()[0]) +
+				xScale.domain()[0];
+			const y =
+				Math.random() * (yScale.domain()[1] - yScale.domain()[0]) +
+				yScale.domain()[0];
+			const point = new Point(x, y);
+			addFigure(store,point);
+			updateList(root, store);
+		});
+
+		const addCircleBtn = root.querySelector(".add-circle-btn");
+		if (addCircleBtn) {
+			addCircleBtn.addEventListener("click", async () => {
+				const input = await promptAsync(
+					"Add circle with given parameters x,y,radius",
+				);
+				if (input) {
+					const coordinates = input.split(",");
+					if (coordinates.length !== 3) {
+						alert(
+							"Invalid input format. Please enter three integers separated by a comma.",
+						);
+						return;
+					}
+
+					const x = Number.parseFloat(coordinates[0]);
+					const y = Number.parseFloat(coordinates[1]);
+					const r = Number.parseFloat(coordinates[2]);
+
+					if (Number.isNaN(x) || Number.isNaN(y) || Number.isNaN(r)) {
+						alert("Invalid coordinates. All must be numbers.");
+						return;
+					}
+
+					const circle = new Circle(x, y, r);
+					addFigure(store, circle);
+					populateList(svg, root, store);
+				} else {
+					alert("No input provided.");
+				}
+			});
+		}
+	}
+	const addRandLineBtn = root.querySelector(".add-random-line-btn");
+	if (addRandLineBtn) {
+		addRandLineBtn.addEventListener("click", () => {
+			const m = getRandomBetween(-3, 3);
+			const b =
+				Math.random() * (yScale.domain()[1] - yScale.domain()[0]) +
+				yScale.domain()[0];
+			const line = new Line(m, b);
+			addFigure(store,line);
+			populateList(svg,root,store);
+		});
+
+		const removeFiguresButton = root.querySelector(".clear-all-btn");
+		if (removeFiguresButton) {
+			removeFiguresButton.addEventListener("click", () => {
+				if (confirm("Reset the plane?")) {
+					removeAllFigures(svg, store);
+					populateList(svg, root, store);
+					svg.selectAll(".figure").remove();
+				}
+			});
+		}
+	}
+}
+
+
+// cartesian-plane.html
+
+<template id="cartesian-plane-template">
+    <style>
+        /* :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+        } */
+        .cartesian-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+        }
+        #figures-container {
+            width: 200px;
+            padding: 1rem;
+            background-color: rgb(55, 55, 55);
+        }
+        #svg-container {
+            width: 200px;
+            flex: 1;
+            background: #1a1a1a;
+        }
+        .figure {
+            stroke: white;
+        }
+        .figures-list {
+            list-style: none;
+            padding: 0;
+        }
+        .figures-list li {
+            color: white;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            margin: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 1ch;
+        }
+        button:active {
+            background-color: rgb(255, 90, 90);
+        }
+        g {
+            color: rgb(204, 204, 204);
+        }
+        .error-message {
+        color: red;
+        font-weight: bold;
+        }
+    </style>
+    <div class="cartesian-container">
+        <div id="figures-container">
+            <h2>Figures</h2>
+            <ul class="figures-list"></ul>
+            <div class="button-container">
+                <button type="button" class="add-point-btn">Add Point</button>
+                <button type="button" class="add-random-point-btn">Random Point</button>
+                <button type="button" class="add-circle-btn">Add Circle</button>
+                <button type="button" class="add-random-line-btn">Random Line</button>
+                <button type="button" class="clear-all-btn">Clear All</button>
+            </div>
+        </div>
+        <div id="svg-container"></div>
+    </div>
+</template>
+
+// constants.js
+
+export const FIGURES_LIST = "figures-list";
+export const CARTESIAN_STORE = "cartesian-store";
+
+// dataManager.js
+
+import { Point, Line, Circle, Parabola } from "./types.js";
+import { plotPoint } from "./points.js";
+import { drawLine, drawCircleOutline } from "./shapes.js";
+import { updateList } from "./render.js";
+
+
+const drawers = {
+	point: plotPoint,
+	line: drawLine,
+	circle: drawCircleOutline,
+};
+
+
+export function loadAndPlotData(root, store) {
+	const { storageKey } = store.getState();
+	const storedData = localStorage.getItem(storageKey);
+	if (!storedData) {
+		console.log("No stored data found");
+		return;
+	}
+
+	const { figures } = JSON.parse(storedData);
+	const deserializedFigures = figures
+		.map((fig) => {
+			const figure = deserializeFigure(fig);
+			switch (figure.type) {
+				case "point":
+					plotPoint(store,figure);
+					break;
+				case "line":
+					drawLine(store,figure);
+					break;
+				case "circle":
+					drawCircleOutline(store,figure);
+					break;
+				default:
+					console.error("Unknown figure type:", figure.type);
+					return
+			}
+			return figure;
+		})
+		.filter(Boolean);
+	store.setState({figures: deserializedFigures});
+	updateList(root, store);
+}
+
+function deserializeFigure(fig) {
+	switch (fig.type) {
+		case "point":
+			return new Point(fig.x, fig.y, fig.id);
+		case "line":
+			return new Line(fig.m, fig.b, fig.id);
+		case "circle":
+			return new Circle(fig.h, fig.k, fig.radius, fig.id);
+		case "parabola":
+			return new Parabola(fig.a, fig.b, fig.c, fig.id);
+		default:
+			console.error("Unknown figure type:", fig.type);
+			return null;
+	}
+}
+
+export function addFigure(store, figure) {
+	const figures= store.getState().figures;
+	if (drawers[figure.type]) {
+		drawers[figure.type](store,figure);
+	}
+
+	const updatedFigures = [...figures, figure];
+	store.setState({ figures: updatedFigures });
+	saveFigures(store);
+}
+
+export function saveFigures(store) {
+	const figures = store.getState().figures;
+	localStorage.setItem(store.getState().storageKey, JSON.stringify({ figures }));
+}
+
+export function removeFigure(store, figure) {
+	const figures = store.getState().figures;
+	const updatedFigures = figures.filter((fig) => fig.id !== figure.id);
+
+	store.setState({ figures: updatedFigures });
+	saveFigures(store);
+}
+
+export function removeAllFigures(svg, store) {
+	store.setState({ figures: [] });
+	saveFigures();
+}
+
+
+// main.js
+
+
+import { LitElement, html } from "lit";
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+import { loadTemplate } from "./utils.js";
+import { loadAndPlotData } from "./dataManager.js";
+import { createInstanceStore } from "./state.js";
+import { initialRender } from "./render.js";
+import { addInteractions } from "./addInteractions.js";
+
+class CartesianPlane extends LitElement {
+	static properties ={
+		id: { type: String },
+		domain: { type: Array, attribute:"domain"},
+	}
+
+	constructor(){
+		super();
+		this.attachShadow({mode: 'open'});
+		this.domain = this.domain || [-10, 10];
+	}
+
+	connectedCallback(){
+		super.connectedCallback();
+		console.clear();
+		this.store= createInstanceStore(this.id);
+	}
+
+	async render() {
+		this.shadowRoot.innerHTML = await loadTemplate();
+		if (!this.id) {
+			const warningarea= this.shadowRoot.querySelector("#figures-container").querySelector("h2")
+			warningarea.innerHTML = `<div class="error-message" style="background-color:red;width:100%;height:100%;color:white">ID is required</div>`;
+		}
+		const [svg, xScale, yScale, transformation] = initialRender( this.shadowRoot , this.store);
+		if (svg && xScale && yScale){ 
+			this.store.setState({svg: svg});
+			this.store.setState({xScale: xScale});
+			this.store.setState({yScale: yScale});
+
+		};
+		addInteractions(this.shadowRoot, this.store);
+		loadAndPlotData(this.shadowRoot, this.store);
+	}
+
+}
+
+customElements.define("cartesian-plane", CartesianPlane);
+
+export default CartesianPlane;
+
+
+// points.js
+
+import { getScaledRadius } from "./utils.js";
+
+export function plotPoint(store, point) {
+    const svg = store.getState().svg;
+    const xScale = store.getState().xScale;
+    const yScale = store.getState().yScale;
+    const transformation = store.getState().transformation;
+
+    const pointRadius = getScaledRadius(5, transformation);
+    const circle = svg
+        .append("circle")
+        .attr("cx", xScale(point.x))
+        .attr("cy", yScale(point.y))
+        .attr("r", pointRadius)
+        .attr("transform", transformation)
+        .attr("fill", "aliceblue")
+        .attr("stroke", "black")
+        .attr("stroke-width", 1 / transformation.k)
+        .attr("class", "point figure")
+        .attr("id", point.id)
+        .attr("alt", `(${point.x}, ${point.y})`);
+
+    addPointInteraction(circle, pointRadius);
+}
+
+export function removePoint(store,point) {
+    const { svg } = store.getState();
+    if (point.id) {
+        svg.select(`[id="${point.id}"]`).remove();
+    }
+}
+
+function addPointInteraction(circle, baseRadius) {
+    circle.on("click", (event) => {
+        event.preventDefault();
+        circle
+            .transition()
+            .duration(300)
+            .attr("r", baseRadius * 2)
+            .style("color", "green")
+            .style("filter", "brightness(150%)");
+            
+        setTimeout(() => {
+            circle.transition().duration(1000).attr("r", baseRadius);
+        }, 1000);
+    });
+}
+
+
+// render.js
+
+import * as d3 from "d3";
+import * as d3Zoom from "d3-zoom";
+
+import { removeFigure } from "./dataManager.js";
+import { loadAndPlotData } from "./dataManager.js";
+// import { handleResize } from "./handleResize.js";
+// import { FIGURES_LIST } from "./constants.js";
+
+let xAxis;
+let yAxis;
+let gridLinesX;
+let gridLinesY;
+
+export function initialRender(root, store) {
+	const svg = gridSetup(root);
+	const { xScale, yScale, height, width } = setScales(root, store);
+	drawAxes(svg, xScale, yScale, height, width);
+	drawGridLines(svg, xScale, yScale);
+	setupZoomBehavior(svg, root, store, xScale, yScale, height, width);
+	populateList(svg, root, store);
+	return [svg, xScale, yScale];
+}
+
+function gridSetup(root) {
+	const width = root.querySelector("#svg-container").offsetWidth;
+	const height = root.querySelector("#svg-container").offsetHeight;
+
+	const svg = d3
+		.select(root)
+		.select("#svg-container")
+		.append("svg")
+		.attr("width", width)
+		.attr("height", height);
+	return svg;
+}
+
+function setScales(root, store) {
+	const svg = d3.select(root).select("#svg-container").select("svg");
+	const height = Number(svg.attr("height"));
+	const width = Number(svg.attr("width"));
+	const k = Number(height / width);
+
+	const xScale = d3
+		.scaleLinear()
+		.domain([-10 / k, 10 / k])
+		.range([0, width]);
+	const yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
+
+	return { xScale, yScale, height, width };
+}
+
+function drawAxes(svg, xScale, yScale, height, width) {
+	svg.selectAll("text.origin").remove();
+
+	const xTicks =
+		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
+
+	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
+
+	svg
+		.append("g")
+		.attr("class", "x-axis")
+		.attr("transform", `translate(0,${height / 2})`)
+		.call(xAxis);
+
+	const yTicks =
+		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
+
+	yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
+	svg
+		.append("g")
+		.attr("class", "y-axis")
+		.attr("transform", `translate(${width / 2},0)`)
+		.call(yAxis);
+}
+
+function drawGridLines(svg, xScale, yScale) {
+	svg.selectAll(".grid-line").remove();
+
+	gridLinesX = svg.append("g").selectAll(".grid-line.x").data(xScale.ticks());
+	gridLinesX
+		.enter()
+		.append("line")
+		.attr("class", "grid-line x")
+		.attr("stroke", "lightgrey")
+		.attr("stroke-width", 1)
+		// .attr("stroke-dasharray", "4 4")
+		.attr("opacity", 0.2)
+		.attr("x1", (d) => xScale(d))
+		.attr("y1", yScale.range()[0])
+		.attr("x2", (d) => xScale(d))
+		.attr("y2", yScale.range()[1]);
+	gridLinesX.exit().remove();
+
+	gridLinesY = svg.append("g").selectAll(".grid-line.y").data(yScale.ticks());
+	gridLinesY
+		.enter()
+		.append("line")
+		.attr("class", "grid-line y")
+		.attr("stroke", "lightgrey")
+		.attr("stroke-width", 1)
+		// .attr("stroke-dasharray", "4 4")
+		.attr("opacity", 0.2)
+		.attr("x1", xScale.range()[0])
+		.attr("y1", (d) => yScale(d))
+		.attr("x2", xScale.range()[1])
+		.attr("y2", (d) => yScale(d));
+	gridLinesY.exit().remove();
+}
+
+function setupZoomBehavior(svg, root, store, xScale, yScale, height, width) {
+	const svg_element = d3.select(root).select("#svg-container").select("svg");
+	const zoom = d3Zoom
+		.zoom()
+		.scaleExtent([0, 100])
+		.on("zoom", (event) => {
+			const { transform } = event;
+			store.setState({ transformation: transform });
+			const zx = transform.rescaleX(xScale).interpolate(d3.interpolateRound);
+			const zy = transform.rescaleY(yScale).interpolate(d3.interpolateRound);
+			xScale.domain = zx.domain;
+			yScale.domain = zy.domain;
+
+			const transformX = (height * transform.k) / 2 + transform.y;
+			const transformY = (width * transform.k) / 2 + transform.x;
+			svg_element
+				.selectAll(".x-axis")
+				.attr("transform", `translate(0,${transformX})`)
+				.call(xAxis.scale(zx));
+
+			svg_element
+				.selectAll(".y-axis")
+				.attr("transform", `translate(${transformY},0)`)
+				.call(yAxis.scale(zy));
+
+			svg_element
+				.selectAll(".grid-line.x")
+				.attr("x1", (d) => zx(d))
+				.attr("x2", (d) => zx(d));
+
+			svg_element
+				.selectAll(".grid-line.y")
+				.attr("y1", (d) => zy(d))
+				.attr("y2", (d) => zy(d));
+
+			svg_element
+				.selectAll(".point.figure")
+				.attr("transform", transform)
+				.attr("r", 5 / transform.k)
+				.attr("stroke-width", 1 / transform.k);
+
+			svg_element
+				.selectAll(".line.figure")
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+
+			svg_element
+				.selectAll(".circle.figure")
+				.attr("transform", transform)
+				.style("stroke-width", 2 / transform.k);
+
+			svg_element.selectAll(".figure").attr("transform", transform);
+
+			drawGridLines(svg_element, zx, zy);
+		});
+
+	svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+}
+
+export function populateList(svg, root, store) {
+	const figuresList = root.querySelector(".figures-list");
+	figuresList.innerHTML = "";
+
+	const storedFigures = store.getState().figures;
+
+	if (!storedFigures) {
+		console.log("No stored figures found");
+		return;
+	}
+
+	for (const figure of storedFigures) {
+		const li = document.createElement("li");
+		li.id = figure.id;
+		li.addEventListener("click", () => li.classList.toggle("active"));
+		li.textContent = getFigureLabel(figure);
+
+		const exitButton = document.createElement("button");
+		const exitIcon = document.createElement("i");
+		exitIcon.className = "fas fa-times";
+		exitButton.appendChild(exitIcon);
+		exitButton.addEventListener("click", () =>
+			handleFigureRemoval(svg, figure, li),
+		);
+		li.appendChild(exitButton);
+		figuresList.appendChild(li);
+	}
+}
+
+export function updateList(root, store) {
+	const svg = store.getState().svg;
+	const figuresList = root.querySelector(".figures-list");
+	const existingItems =  Array.from(figuresList.querySelectorAll("li"));
+	const storedFigures = store.getState().figures;
+
+	const newFigures = storedFigures.filter((fig) => {
+		return !existingItems.some((item) => item.id === fig.id);
+	});
+
+	for (const figure of newFigures) {
+		const li = document.createElement("li");
+		li.id = figure.id;
+		li.addEventListener("click", () => li.classList.toggle("active"));
+		li.textContent = getFigureLabel(figure);
+
+		const exitButton = document.createElement("button");
+		const exitIcon = document.createElement("i");
+		exitIcon.className = "fas fa-times";
+		exitButton.appendChild(exitIcon);
+		exitButton.addEventListener("click", () =>
+			handleFigureRemoval(svg, store, figure, li),
+		);
+		li.appendChild(exitButton);
+		figuresList.appendChild(li);
+	}
+}
+
+function handleFigureRemoval(svg, store, figure, listItem) {
+	const { id } = figure;
+	if (!id) throw new Error("Invalid figure ID");
+
+	const figureSelected = svg.select(`.figure[id="${id}"]`);
+	if (figureSelected.empty()) {
+		console.error("No figure found with ID", id);
+	}
+
+	figureSelected.remove();
+	removeFigure(store,figure);
+	listItem.remove();
+}
+
+function getFigureLabel(figure) {
+	switch (figure.type) {
+		case "point":
+			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`;
+		case "line": {
+			const termSymbol = figure.b >= 0 ? "+" : "-";
+			return `y = ${figure.m.toFixed(1)}x ${termSymbol} ${figure.b
+				.toFixed(1)
+				.replace("-", "")}`;
+		}
+		case "circle":
+			return `${figure.constructor.name} ${figure.h}, ${figure.k}, ${figure.radius}`;
+		case "parabola":
+			return `${figure.constructor.name}`;
+		default:
+			console.error("Invalid figure type");
+			return "";
+	}
+}
+
+
+// shapes.js
+
+import * as d3 from "d3";
+import { getStrokeWidth } from "./utils.js";
+
+export function drawLine(store,line) {
+    const { svg, xScale, yScale, transformation } = store.getState();
+    if (!svg || !xScale || !yScale) return;
+
+    svg
+        .append("line")
+        .attr("x1", xScale(-10000))
+        .attr("y1", yScale(line.m * -10000 + line.b))
+        .attr("x2", xScale(10000))
+        .attr("y2", yScale(line.m * 10000 + line.b))
+        .attr("id", line.id)
+        .attr("class", "line figure")
+        .attr("transform", transformation)
+        .style("stroke", "white")
+        .style("stroke-width", getStrokeWidth(2, transformation));
+}
+
+export function drawCircleOutline(store, circle) {
+    const { svg, xScale, yScale, transformation } = store.getState();
+    if (!svg || !xScale || !yScale) return;
+
+    svg
+        .append("circle")
+        .attr("cx", xScale(circle.h))
+        .attr("cy", yScale(circle.k))
+        .attr("r", xScale(circle.radius) - xScale(0))
+        .attr("id", circle.id)
+        .attr("class", "circle figure")
+        .attr("transform", transformation)
+        .style("stroke", "white")
+        .style("stroke-width", getStrokeWidth(2, transformation))
+        .style("fill", "none");
+}
+
+export function drawSine() {
+    const { svg, xScale, yScale, transformation } = useCartesianStore.getState();
+    if (!svg || !xScale || !yScale) return;
+
+    const sineData = d3.range(-10, 10, 0.1)
+        .map((x) => ({ x, y: Math.sin(x) * 5 }));
+
+    const lineGenerator = d3.line()
+        .x(([x, y]) => xScale(x))
+        .y(([x, y]) => yScale(y));
+
+    svg
+        .append("path")
+        .datum(sineData)
+        .attr("d", lineGenerator)
+        .attr("transform", transformation)
+        .attr("class", "line figure")
+        .attr("fill", "none")
+        .attr("stroke", "yellow")
+        .attr("stroke-width", getStrokeWidth(2, transformation));
+}
+
+// state.js
+
+import { createStore } from "zustand/vanilla";
+import * as d3 from "d3";
+
+export function createInstanceStore(id) {
+	const storageKey = `cartesian-store-${id}`;
+	return createStore(() => ({
+		storageKey: storageKey,
+		svg: null,
+		xScale: null,
+		yScale: null,
+		figures: [],
+		transformation: { k: 1, x: 0, y: 0 },
+	}));
+}
+
+
+// types.js
+
+import { generateShortID } from "./utils.js";
+
+export class Figure {
+	constructor(type, id) {
+		this.id = id; 
+		this.type = type; 
+	}
+}
+
+export class Point extends Figure {
+	constructor(x, y, id) {
+		super("point", id);
+		this.x = x;
+		this.y = y;
+		this.id = id ? id : generateShortID();
+	}
+}
+
+
+export class Line extends Figure {
+	constructor(m, b, id) {
+		super("line", id); 
+		this.m = m; 
+		this.b = b; 
+		this.id = id ? id : generateShortID();
+	}
+
+	
+}
+
+
+export class Circle extends Figure {
+	constructor(h, k, radius, id) {
+		super("circle", id); 
+		this.h = h; 
+		this.k = k; 
+		this.radius = radius; 
+		this.id = id ? id : generateShortID();
+	}
+
+	
+}
+
+
+export class Parabola extends Figure {
+	constructor(a, b, c, id) {
+		super("parabola", id); 
+		this.a = a; 
+		this.b = b; 
+		this.c = c; 
+		this.id = id ? id : generateShortID();
+	}
+
+	
+}
+
+
+
+
+// utils.js
+
+// Utility functions
+
+export async function loadTemplate() {
+	const response = await fetch("/scripts/cartesian-plane.html");
+	const text = await response.text();
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(text, "text/html");
+	return doc.getElementById("cartesian-plane-template").innerHTML;
+}
+
+export function getRandomColor() {
+	return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+}
+
+export function distance(p1, p2) {
+	return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+}
+
+export function generateShortID() {
+	const randomPart = Math.random().toString(36).substring(2, 4); // 2 random characters
+	const timePart = Date.now().toString(36).slice(-2); // Last 2 chars of timestamp
+	return randomPart + timePart;
+}
+
+export function getRandomBetween(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
+export function getScaledRadius(baseRadius, transformation) {
+	return baseRadius / (transformation?.k || 1);
+}
+
+export function getStrokeWidth(baseWidth, transformation) {
+	return baseWidth / (transformation?.k || 1);
+}
+
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
+/**
+ * iOS 9 compatible prompt that returns a Promise
+ * @param {string} message - The message to display in the prompt
+ * @return {Promise<string|null>} The user's input or null if cancelled
+ */
+export const promptAsync = (message) => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			const result = prompt(message);
+			resolve(result);
+		}, 100);
+	});
+};
+
+/**
+ * iOS 9 compatible alert that returns a Promise
+ * @param {string} message - The message to display in the alert
+ * @return {Promise<void>}
+ */
+export const alertAsync = (message) => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			alert(message);
+			resolve();
+		}, 100);
+	});
+};
+
+

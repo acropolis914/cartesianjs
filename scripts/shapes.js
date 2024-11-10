@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import { getStrokeWidth } from "./utils.js";
 
-export function drawLine(line) {
-    const { svg, xScale, yScale, transformation } = useCartesianStore.getState();
+export function drawLine(store,line) {
+    const { svg, xScale, yScale, transformation } = store.getState();
     if (!svg || !xScale || !yScale) return;
 
     svg
@@ -18,8 +18,8 @@ export function drawLine(line) {
         .style("stroke-width", getStrokeWidth(2, transformation));
 }
 
-export function drawCircleOutline(circle) {
-    const { svg, xScale, yScale, transformation } = useCartesianStore.getState();
+export function drawCircleOutline(store, circle) {
+    const { svg, xScale, yScale, transformation } = store.getState();
     if (!svg || !xScale || !yScale) return;
 
     svg

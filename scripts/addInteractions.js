@@ -15,6 +15,7 @@ export async function addInteractions(root, store) {
 	if (addPointBtn) {
 		addPointBtn.addEventListener("click", async () => {
 			const input = await promptAsync("Add point with given coordinates (x,y)");
+
 			if (!input) {
 				console.log("No input provided.");
 				return;
@@ -37,8 +38,8 @@ export async function addInteractions(root, store) {
 			}
 
 			const point = new Point(x, y);
-			addFigure(svg,store,point);
-			populateList();
+			addFigure(store, point);
+			//populateList();
 		});
 	}
 
@@ -52,8 +53,8 @@ export async function addInteractions(root, store) {
 				Math.random() * (yScale.domain()[1] - yScale.domain()[0]) +
 				yScale.domain()[0];
 			const point = new Point(x, y);
-			addFigure(svg,store,point);
-			updateList();
+			addFigure(store,point);
+			updateList(root, store);
 		});
 
 		const addCircleBtn = root.querySelector(".add-circle-btn");
@@ -81,8 +82,8 @@ export async function addInteractions(root, store) {
 					}
 
 					const circle = new Circle(x, y, r);
-					addFigure(circle);
-					populateList();
+					addFigure(store, circle);
+					populateList(svg, root, store);
 				} else {
 					alert("No input provided.");
 				}
@@ -97,16 +98,16 @@ export async function addInteractions(root, store) {
 				Math.random() * (yScale.domain()[1] - yScale.domain()[0]) +
 				yScale.domain()[0];
 			const line = new Line(m, b);
-			addFigure(line);
-			populateList();
+			addFigure(store,line);
+			populateList(svg,root,store);
 		});
 
 		const removeFiguresButton = root.querySelector(".clear-all-btn");
 		if (removeFiguresButton) {
 			removeFiguresButton.addEventListener("click", () => {
 				if (confirm("Reset the plane?")) {
-					removeAllFigures();
-					populateList();
+					removeAllFigures(svg, store);
+					populateList(svg, root, store);
 					svg.selectAll(".figure").remove();
 				}
 			});

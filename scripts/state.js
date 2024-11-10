@@ -4,6 +4,7 @@ import * as d3 from "d3";
 export function createInstanceStore(id) {
 	const storageKey = `cartesian-store-${id}`;
 	return createStore(() => ({
+		storageKey: storageKey,
 		svg: null,
 		xScale: null,
 		yScale: null,
