@@ -158,12 +158,16 @@ let html = `<template id="cartesian-plane-template">
 			flex-wrap: wrap;
 		}
 		.button-container > button {
-			margin: 0.1rem;
+			margin: 0.25rem;
 			padding: 0.1rem;
 			border-radius: 0.5ch;
 			width: 4rem;
 			overflow: hidden;
 			height: 4rem;
+			font-size: 1rem;
+			background-color: rgb(51, 54, 55);
+			color: white;
+			border: 0;
 		}
 		.button-container > button:hover {
 			background-color: rgb(200, 250, 255);
