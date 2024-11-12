@@ -84,7 +84,7 @@ export function removeFigure(store, figure) {
 	saveFigures(store);
 }
 
-export function removeAllFigures(svg, store) {
+export function removeAllFigures(store) {
 	store.setState({ figures: [] });
-	saveFigures();
+	saveFigures(store);
 }

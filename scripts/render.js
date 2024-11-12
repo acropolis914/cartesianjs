@@ -2,24 +2,34 @@ import * as d3 from "d3";
 import * as d3Zoom from "d3-zoom";
 
 import { removeFigure } from "./dataManager.js";
-import { loadAndPlotData } from "./dataManager.js";
-// import { handleResize } from "./handleResize.js";
-// import { FIGURES_LIST } from "./constants.js";
 
+let k
 let xAxis;
 let yAxis;
 let gridLinesX;
 let gridLinesY;
+let transformation;
+let xTicks;
+let yTicks;
 
 export function initialRender(root, store) {
 	const svg = gridSetup(root);
-	const { xScale, yScale, height, width } = setScales(root, store);
+	const { xScale, yScale, height, width, k } = setScales(root);
 	drawAxes(svg, xScale, yScale, height, width);
 	drawGridLines(svg, xScale, yScale);
 	setupZoomBehavior(svg, root, store, xScale, yScale, height, width);
 	populateList(svg, root, store);
-	return [svg, xScale, yScale];
+
+
+	// svg.on("click", (event) => {
+	// 	const [x, y] = d3.pointer(event);
+	// 	console.log("Clicked at", x, y);
+	// 	console.log(transformation);
+	// });
+	store.setState({ svg: svg, xScale: xScale, yScale: yScale});
 }
+
+
 
 function gridSetup(root) {
 	const width = root.querySelector("#svg-container").offsetWidth;
@@ -34,28 +44,37 @@ function gridSetup(root) {
 	return svg;
 }
 
-function setScales(root, store) {
+function setScales(root) {
 	const svg = d3.select(root).select("#svg-container").select("svg");
 	const height = Number(svg.attr("height"));
 	const width = Number(svg.attr("width"));
 	const k = Number(height / width);
 
-	const xScale = d3
-		.scaleLinear()
-		.domain([-10 / k, 10 / k])
-		.range([0, width]);
-	const yScale = d3.scaleLinear().domain([-10, 10]).range([height, 0]);
 
-	return { xScale, yScale, height, width };
+	const yScale = d3.scaleLinear().domain([-6, 6]).range([height, 0]).nice();
+	const xScale = d3
+	.scaleLinear()
+	.domain([-6 / k, 6 / k])
+	.range([0, width])
+
+	yTicks = yScale.ticks().length;
+	xTicks = yScale.ticks().length / k;
+	xScale.ticks(xTicks);
+
+	return { xScale, yScale, height, width, k };
 }
 
 function drawAxes(svg, xScale, yScale, height, width) {
 	svg.selectAll("text.origin").remove();
 
-	const xTicks =
-		Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
+	// const yTicks =
+	// Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
 
-	xAxis = d3.axisBottom(xScale).ticks(xTicks / 2);
+	// const xTicks =
+	// 	Math.floor(xScale.domain()[1]) - Math.floor(xScale.domain()[0]) + 1;
+
+
+	xAxis = d3.axisBottom(xScale).ticks(xTicks/2);
 
 	svg
 		.append("g")
@@ -63,10 +82,8 @@ function drawAxes(svg, xScale, yScale, height, width) {
 		.attr("transform", `translate(0,${height / 2})`)
 		.call(xAxis);
 
-	const yTicks =
-		Math.floor(yScale.domain()[1]) - Math.floor(yScale.domain()[0]) + 1;
 
-	yAxis = d3.axisRight(yScale).ticks(yTicks / 2);
+	yAxis = d3.axisRight(yScale).ticks(yTicks/2);
 	svg
 		.append("g")
 		.attr("class", "y-axis")
@@ -75,46 +92,65 @@ function drawAxes(svg, xScale, yScale, height, width) {
 }
 
 function drawGridLines(svg, xScale, yScale) {
-	svg.selectAll(".grid-line").remove();
-
-	gridLinesX = svg.append("g").selectAll(".grid-line.x").data(xScale.ticks());
-	gridLinesX
-		.enter()
-		.append("line")
-		.attr("class", "grid-line x")
-		.attr("stroke", "lightgrey")
-		.attr("stroke-width", 1)
-		// .attr("stroke-dasharray", "4 4")
-		.attr("opacity", 0.2)
-		.attr("x1", (d) => xScale(d))
-		.attr("y1", yScale.range()[0])
-		.attr("x2", (d) => xScale(d))
-		.attr("y2", yScale.range()[1]);
-	gridLinesX.exit().remove();
-
-	gridLinesY = svg.append("g").selectAll(".grid-line.y").data(yScale.ticks());
-	gridLinesY
-		.enter()
-		.append("line")
-		.attr("class", "grid-line y")
-		.attr("stroke", "lightgrey")
-		.attr("stroke-width", 1)
-		// .attr("stroke-dasharray", "4 4")
-		.attr("opacity", 0.2)
-		.attr("x1", xScale.range()[0])
-		.attr("y1", (d) => yScale(d))
-		.attr("x2", xScale.range()[1])
-		.attr("y2", (d) => yScale(d));
-	gridLinesY.exit().remove();
+    // Remove all existing grid line groups
+    svg.selectAll("g.grid-lines").remove();
+    
+    const xGridValues = xScale.ticks(xTicks);
+    const yGridValues = yScale.ticks(yTicks);
+    
+    // Create a single group for all grid lines
+    const gridGroup = svg.append("g")
+        .attr("class", "grid-lines");
+    
+    // Draw X grid lines
+    gridGroup.selectAll(".grid-line.x")
+        .data(xGridValues)
+        .join("line")
+        .attr("class", "grid-line x")
+        .attr("stroke", "lightgrey")
+        .attr("stroke-width", 1)
+        .attr("opacity", (d) => {
+            return typeof d === 'number' && d % 1 === 0 ? 0.25 : 0.2;
+        })
+        .attr("x1", (d) => xScale(d))
+        .attr("y1", yScale.range()[0])
+        .attr("x2", (d) => xScale(d))
+        .attr("y2", yScale.range()[1]);
+    
+    // Draw Y grid lines
+    gridGroup.selectAll(".grid-line.y")
+        .data(yGridValues)
+        .join("line")
+        .attr("class", "grid-line y")
+        .attr("stroke", "lightgrey")
+        .attr("stroke-width", 1)
+        .attr("opacity", 0.2)
+        .attr("x1", xScale.range()[0])
+        .attr("y1", (d) => yScale(d))
+        .attr("x2", xScale.range()[1])
+        .attr("y2", (d) => yScale(d));
 }
 
-function setupZoomBehavior(svg, root, store, xScale, yScale, height, width) {
+export function updateZoomable(root, store, zoomable) {
+	const svg = store.getState().svg;
+	const { xScale, yScale, height, width } = setScales(root);
+	if (zoomable) {
+		console.log("Zoom enabled");
+		setupZoomBehavior(svg, root, store, xScale, yScale, height, width);
+	} else {
+		console.log("Zoom disabled");
+		svg.on(".zoom", null);
+	}
+}
+
+export function setupZoomBehavior( svg, root, store, xScale, yScale, height, width, ) {
 	const svg_element = d3.select(root).select("#svg-container").select("svg");
 	const zoom = d3Zoom
 		.zoom()
 		.scaleExtent([0, 100])
 		.on("zoom", (event) => {
 			const { transform } = event;
+			transformation = transform;
 			store.setState({ transformation: transform });
 			const zx = transform.rescaleX(xScale).interpolate(d3.interpolateRound);
 			const zy = transform.rescaleY(yScale).interpolate(d3.interpolateRound);
@@ -123,15 +159,32 @@ function setupZoomBehavior(svg, root, store, xScale, yScale, height, width) {
 
 			const transformX = (height * transform.k) / 2 + transform.y;
 			const transformY = (width * transform.k) / 2 + transform.x;
-			svg_element
-				.selectAll(".x-axis")
-				.attr("transform", `translate(0,${transformX})`)
-				.call(xAxis.scale(zx));
 
+// TODO - Add a code to change the axis position and direction when it is out of the view
+			if (transformX < 0) {
+				svg_element
+					.selectAll(".x-axis")
+					.attr("transform", "translate(0,0)")
+					.call(xAxis.scale(zx));
+			} else {
+				svg_element
+					.selectAll(".x-axis")
+					.attr("transform", `translate(0,${transformX})`)
+					.call(xAxis.scale(zx));
+			}
+
+
+			if (transformY < 0) {
+				svg_element
+					.selectAll(".y-axis")
+					.attr("transform", "translate(0,0)")
+					.call(yAxis.scale(zy));
+			} else {
 			svg_element
 				.selectAll(".y-axis")
 				.attr("transform", `translate(${transformY},0)`)
 				.call(yAxis.scale(zy));
+			}
 
 			svg_element
 				.selectAll(".grid-line.x")
@@ -163,7 +216,6 @@ function setupZoomBehavior(svg, root, store, xScale, yScale, height, width) {
 
 			drawGridLines(svg_element, zx, zy);
 		});
-
 	svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 }
 
@@ -189,7 +241,7 @@ export function populateList(svg, root, store) {
 		exitIcon.className = "fas fa-times";
 		exitButton.appendChild(exitIcon);
 		exitButton.addEventListener("click", () =>
-			handleFigureRemoval(svg, figure, li),
+			handleFigureRemoval(svg, store, figure, li),
 		);
 		li.appendChild(exitButton);
 		figuresList.appendChild(li);
@@ -199,7 +251,7 @@ export function populateList(svg, root, store) {
 export function updateList(root, store) {
 	const svg = store.getState().svg;
 	const figuresList = root.querySelector(".figures-list");
-	const existingItems =  Array.from(figuresList.querySelectorAll("li"));
+	const existingItems = Array.from(figuresList.querySelectorAll("li"));
 	const storedFigures = store.getState().figures;
 
 	const newFigures = storedFigures.filter((fig) => {
@@ -234,17 +286,17 @@ function handleFigureRemoval(svg, store, figure, listItem) {
 	}
 
 	figureSelected.remove();
-	removeFigure(store,figure);
+	removeFigure(store, figure);
 	listItem.remove();
 }
 
 function getFigureLabel(figure) {
 	switch (figure.type) {
 		case "point":
-			return `(${figure.x.toFixed(1)}, ${figure.y.toFixed(1)})`;
+			return `(${figure.x.toFixed(2)}, ${figure.y.toFixed(2)})`;
 		case "line": {
 			const termSymbol = figure.b >= 0 ? "+" : "-";
-			return `y = ${figure.m.toFixed(1)}x ${termSymbol} ${figure.b
+			return `y = ${figure.m.toFixed(2)}x ${termSymbol} ${figure.b
 				.toFixed(1)
 				.replace("-", "")}`;
 		}

@@ -25,7 +25,6 @@ export class Line extends Figure {
 		this.id = id ? id : generateShortID();
 	}
 
-	
 }
 
 
@@ -38,7 +37,12 @@ export class Circle extends Figure {
 		this.id = id ? id : generateShortID();
 	}
 
-	
+	area(){
+		return Math.PI * this.radius * this.radius;
+	}
+	circumference(){
+		return Math.PI * (2 * this.radius)
+	}
 }
 
 
