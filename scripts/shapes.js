@@ -5,12 +5,14 @@ export function drawLine(store,line) {
     const { svg, xScale, yScale, transformation } = store.getState();
     if (!svg || !xScale || !yScale) return;
 
+    const bounds = 100000
+
     svg
         .append("line")
-        .attr("x1", xScale(-10000))
-        .attr("y1", yScale(line.m * -10000 + line.b))
-        .attr("x2", xScale(10000))
-        .attr("y2", yScale(line.m * 10000 + line.b))
+        .attr("x1", xScale(-bounds))
+        .attr("y1", yScale(line.m * -bounds + line.b))
+        .attr("x2", xScale(bounds))
+        .attr("y2", yScale(line.m * bounds + line.b))
         .attr("id", line.id)
         .attr("class", "line figure")
         .attr("transform", transformation)

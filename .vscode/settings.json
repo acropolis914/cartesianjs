@@ -1,5 +1,6 @@
 {
     "workbench.colorTheme": "Nord Flat Italic",
     "workbench.preferredDarkColorTheme": "Mist",
-    "workbench.iconTheme": "eq-material-theme-icons"
+    "workbench.iconTheme": "eq-material-theme-icons",
+    "lit-html.tags": ["html","template"],
 }

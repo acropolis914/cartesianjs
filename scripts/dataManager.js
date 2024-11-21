@@ -15,7 +15,7 @@ export function loadAndPlotData(root, store) {
 	const { storageKey } = store.getState();
 	const storedData = localStorage.getItem(storageKey);
 	if (!storedData) {
-		console.log("No stored data found");
+		// console.log("No stored data found");
 		return;
 	}
 
@@ -43,6 +43,46 @@ export function loadAndPlotData(root, store) {
 	store.setState({figures: deserializedFigures});
 	updateList(root, store);
 }
+
+
+export function loadAndPlotData_fromProps(store) {
+	const id = store.getState().id;
+	const cartesianPlane = document.getElementById(`${id}`);
+	// @ts-ignore
+	const storedData = cartesianPlane.plot;
+	if (!storedData) {
+		console.log("No stored data found");
+		return;
+	}
+	const figures  = JSON.parse(storedData);
+	const deserializedFigures = figures
+		.map((fig) => {
+			const figure = fig
+			switch (figure[0]) {
+				case "point": {
+					const shape = new Point(figure[1], figure[2]);
+					plotPoint(store, shape);
+					break;
+				}
+				case "line": {
+					const shape = new Line(figure[1], figure[2]);
+					drawLine(store, shape);
+					break;
+				}
+				case "circle":{
+					const shape = new Circle(figure[1], figure[2], figure[3]);
+					drawCircleOutline(store, shape);
+					break;
+				}
+				default:
+					console.error("Unknown figure type:", figure.type);
+					return
+			}
+			return figure;
+		})
+		.filter(Boolean);
+}
+
 
 function deserializeFigure(fig) {
 	switch (fig.type) {

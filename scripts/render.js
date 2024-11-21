@@ -278,7 +278,8 @@ export function updateList(root, store) {
 
 function handleFigureRemoval(svg, store, figure, listItem) {
 	const { id } = figure;
-	if (!id) throw new Error("Invalid figure ID");
+	if (!id) {console.log
+	("Invalid figure ID");}
 
 	const figureSelected = svg.select(`.figure[id="${id}"]`);
 	if (figureSelected.empty()) {

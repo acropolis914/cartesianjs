@@ -1,11 +1,10 @@
 import * as d3 from "d3";
-import { setupZoomBehavior, updateList, updateZoomable } from "./render.js";
+import { updateList, updateZoomable } from "./render.js";
 import { addFigure, removeAllFigures } from "./dataManager.js";
 import { populateList } from "./render.js";
 import { Point, Circle, Line } from "./types.js";
 import { getRandomBetween } from "./utils.js";
 import { promptAsync } from "./utils.js";
-import { contourDensity } from "d3";
 
 export async function addInteractions(root, store) {
 	const svg = store.getState().svg;
@@ -43,37 +42,39 @@ export async function addInteractions(root, store) {
 		"add-point-by-click-btn",
 	);
 
+	const toggleSideBar = true;
+
 	let addPointByClick = false;
 
 	if (addButtonByClick) {
-	  addButtonByClick.addEventListener("click", () => {
-		if (!addPointByClick) {
-			addPointByClick = true;
-		  svg.on("click", (event) => {
-			let [x, y] = d3.pointer(event);
-			const xScale = store.getState().xScale;
-			const yScale = store.getState().yScale;
-			const transformation = store.getState().transformation;
-	
-			// Apply the inverse of the transformation to the coordinates
-			x = (x - transformation.x) / transformation.k;
-			y = (y - transformation.y) / transformation.k;
-	
-			const inverseXScale = xScale.invert(x);
-			const inverseYScale = yScale.invert(y);
-	
-			// Now you can use the adjusted coordinates
-			console.log(`Clicked at (${inverseXScale}, ${inverseYScale})`);
-			const point = new Point(inverseXScale, inverseYScale);
-			addFigure(store, point);
-			populateList(svg, root, store);
-	
-			// Turn off the click event listener
-			addPointByClick = false;
-			svg.on("click", null);
-		  });
-		}
-	  });
+		addButtonByClick.addEventListener("click", () => {
+			if (!addPointByClick) {
+				addPointByClick = true;
+				svg.on("click", (event) => {
+					let [x, y] = d3.pointer(event);
+					const xScale = store.getState().xScale;
+					const yScale = store.getState().yScale;
+					const transformation = store.getState().transformation;
+
+					// Apply the inverse of the transformation to the coordinates
+					x = (x - transformation.x) / transformation.k;
+					y = (y - transformation.y) / transformation.k;
+
+					const inverseXScale = xScale.invert(x);
+					const inverseYScale = yScale.invert(y);
+
+					// Now you can use the adjusted coordinates
+					console.log(`Clicked at (${inverseXScale}, ${inverseYScale})`);
+					const point = new Point(inverseXScale, inverseYScale);
+					addFigure(store, point);
+					populateList(svg, root, store);
+
+					// Turn off the click event listener
+					addPointByClick = false;
+					svg.on("click", null);
+				});
+			}
+		});
 	}
 
 	if (toggleZoomButton) {
@@ -183,6 +184,23 @@ export async function addInteractions(root, store) {
 				removeAllFigures(store);
 				populateList(svg, root, store);
 				svg.selectAll(".figure").remove();
+			}
+		});
+	}
+
+	if (toggleSideBar) {
+		const figuresContainer = root.querySelector("#figures-container");
+		const toggleButton = root.querySelector("#sidebar-toggle-button");
+		// toggleButton.innerHTML = ``;
+
+		toggleButton.addEventListener("click", () => {
+			figuresContainer.classList.toggle("collapsed");
+			toggleButton.classList.toggle("collapsed");
+
+			if (figuresContainer.classList.contains("collapsed")) {
+				toggleButton.innerHTML = `<i class="fa-solid fa-bars"></i>`;
+			} else {
+				toggleButton.innerHTML = "<i class='fa-solid fa-angles-left'></i>";
 			}
 		});
 	}

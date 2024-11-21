@@ -3,6 +3,7 @@ import { createStore } from "zustand/vanilla";
 export function createInstanceStore(id) {
 	const storageKey = `cartesian-store-${id}`;
 	return createStore(() => ({
+		id: id,
 		storageKey: storageKey,
 		root:null,
 		svg: null,
