@@ -64,7 +64,7 @@ export async function addInteractions(root, store) {
 					const inverseYScale = yScale.invert(y);
 
 					// Now you can use the adjusted coordinates
-					console.log(`Clicked at (${inverseXScale}, ${inverseYScale})`);
+					// console.log(`Clicked at (${inverseXScale}, ${inverseYScale})`);
 					const point = new Point(inverseXScale, inverseYScale);
 					addFigure(store, point);
 					populateList(svg, root, store);

@@ -8,13 +8,22 @@ import { initialRender, updateZoomable } from "./render.js";
 import { addInteractions } from "./addInteractions.js";
 
 class CartesianPlane extends LitElement {
+	  /**
+   * Properties of the CartesianPlane component
+   * @property {string} id - The unique identifier for the component instance.
+   * @property {string} expects - The expected input data format.
+   * @property {object} plot - The plotting configuration object.
+   * @property {boolean} sidebar - Whether the sidebar is enabled.
+   * @property {boolean} sidebarClosed - Whether the sidebar is closed by default.
+   * @property {array} range - The domain range for the x and y axes.
+   */
 	static properties = {
 		id: { type: String },
 		expects: { attribute: "expects" },
 		plot: { attribute: "plot" },
 		sidebar: { attribute: "sidebar" },
 		sidebarClosed: { type: Boolean, attribute: "sidebar-closed" },
-		range: { type: Array, attribute: "domain" },
+		range: { type: Array, attribute: "range" },
 	};
 
 	constructor() {
@@ -42,13 +51,13 @@ class CartesianPlane extends LitElement {
 				"No ID provided, will default to null. All null instances will share the same storage."
 			);
 		}
-		initialRender(this.shadowRoot, this.store);
+		initialRender(this, this.shadowRoot, this.store);
 		addInteractions(this.shadowRoot, this.store);
 		loadAndPlotData(this.shadowRoot, this.store);
-		loadAndPlotData_fromProps(this.store);
+		loadAndPlotData_fromProps(this, this.store);
 
 
-		const isSidebarEnabled =  this.sidebar !=="false";
+		const isSidebarEnabled =  this.sidebar !== "false";
 		if (!isSidebarEnabled) {
 			const sidebar = this.shadowRoot.querySelector("#figures-container");
 			const sidebarButton = this.shadowRoot.querySelector("#sidebar-toggle-button");
@@ -58,10 +67,9 @@ class CartesianPlane extends LitElement {
 			sidebarButton.style.display = "none";
 		}
 
-		const isSidebarClosed = this.sidebarClosed;
+		const isSidebarClosed = !!this.sidebarClosed;
 		if (isSidebarClosed) {
 			const sidebarButton = this.shadowRoot.querySelector("#sidebar-toggle-button");
-			console.log(sidebarButton);
 			// @ts-ignore
 			sidebarButton.click();
 		}
@@ -72,3 +80,5 @@ class CartesianPlane extends LitElement {
 customElements.define("cartesian-plane", CartesianPlane);
 
 export default CartesianPlane;
+
+

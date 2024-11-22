@@ -4,18 +4,25 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>CartesianPlane</title>
+		<script src="https://unpkg.com/react-scan/dist/auto.global.js"></script>
 		<link rel="stylesheet" href="./styles/normalize.css" />
 		<link rel="stylesheet" href="./styles/index.css" />
 		<link rel="stylesheet" href="/fontawesome/css/all.min.css" />
 	</head>
 	<body>
 		<h1>Cartesian Plane</h1>
-		<cartesian-plane
-			id="cartesian-demo"
-			range="[-1,5]"
-			plot='[["point",3,4],["circle",0,0,1],["circle",0,0,1.5]]' sidebar="false"
+		<cartesian-plane id="cartesian-demo"
+			range="[-2,2]"
+			plot='[["point",3,4],["circle",0,0,1],["circle",0,0,1.5]]'
+			sidebar="false"
+			sidebar-closed
 		></cartesian-plane>
-		<cartesian-plane id="cartesian-2" plot='[["point",1,1]]' expects='[["point",2,3],["point",4,1]]' sidebar-closed="true"></cartesian-plane>
+		<cartesian-plane id="cartesian-2"
+			plot='[["point",1,1]]'
+			expects='[["point",2,3],["point",4,1]]'
+			sidebar-closed
+			range="[-3,3]"
+		></cartesian-plane>
 		<script type="module" src="./scripts/main.js"></script>
 	</body>
 </html>

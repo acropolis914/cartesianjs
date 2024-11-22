@@ -45,11 +45,11 @@ export function loadAndPlotData(root, store) {
 }
 
 
-export function loadAndPlotData_fromProps(store) {
+export function loadAndPlotData_fromProps(thisDoc , store) {
 	const id = store.getState().id;
-	const cartesianPlane = document.getElementById(`${id}`);
+	// const cartesianPlane = document.getElementById(`${id}`);
 	// @ts-ignore
-	const storedData = cartesianPlane.plot;
+	const storedData = thisDoc.plot;
 	if (!storedData) {
 		console.log("No stored data found");
 		return;

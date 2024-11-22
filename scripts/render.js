@@ -12,9 +12,9 @@ let transformation;
 let xTicks;
 let yTicks;
 
-export function initialRender(root, store) {
+export function initialRender(thisDoc, root, store) {
 	const svg = gridSetup(root);
-	const { xScale, yScale, height, width, k } = setScales(root);
+	const { xScale, yScale, height, width, k } = setScales(root, thisDoc.range);
 	drawAxes(svg, xScale, yScale, height, width);
 	drawGridLines(svg, xScale, yScale);
 	setupZoomBehavior(svg, root, store, xScale, yScale, height, width);
@@ -44,17 +44,17 @@ function gridSetup(root) {
 	return svg;
 }
 
-function setScales(root) {
+function setScales(root, range) {
 	const svg = d3.select(root).select("#svg-container").select("svg");
 	const height = Number(svg.attr("height"));
 	const width = Number(svg.attr("width"));
 	const k = Number(height / width);
 
 
-	const yScale = d3.scaleLinear().domain([-6, 6]).range([height, 0]).nice();
+	const yScale = d3.scaleLinear().domain(range).range([height, 0]).nice();
 	const xScale = d3
 	.scaleLinear()
-	.domain([-6 / k, 6 / k])
+	.domain([range[0] / k, range[1] / k])
 	.range([0, width])
 
 	yTicks = yScale.ticks().length;
