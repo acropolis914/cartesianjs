@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "NodeNext"
   },
-  // "include": ["scripts/**/*.js"],
+  "include": ["scripts/**/*.js"],
   "exclude": ["node_modules"]
 }
 

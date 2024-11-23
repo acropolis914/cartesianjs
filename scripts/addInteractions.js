@@ -191,17 +191,16 @@ export async function addInteractions(root, store) {
 	if (toggleSideBar) {
 		const figuresContainer = root.querySelector("#figures-container");
 		const toggleButton = root.querySelector("#sidebar-toggle-button");
-		// toggleButton.innerHTML = ``;
 
 		toggleButton.addEventListener("click", () => {
 			figuresContainer.classList.toggle("collapsed");
 			toggleButton.classList.toggle("collapsed");
-
 			if (figuresContainer.classList.contains("collapsed")) {
 				toggleButton.innerHTML = `<i class="fa-solid fa-bars"></i>`;
-			} else {
-				toggleButton.innerHTML = "<i class='fa-solid fa-angles-left'></i>";
+				return;
 			}
+			toggleButton.innerHTML = "<i class='fa-solid fa-angles-left'></i>";
+
 		});
 	}
 }

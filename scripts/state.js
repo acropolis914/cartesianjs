@@ -2,7 +2,7 @@ import { createStore } from "zustand/vanilla";
 
 export function createInstanceStore(id) {
 	const storageKey = `cartesian-store-${id}`;
-	return createStore(() => ({
+	return createStore((set) => ({
 		id: id,
 		storageKey: storageKey,
 		root:null,
@@ -11,7 +11,9 @@ export function createInstanceStore(id) {
 		yScale: null,
 		figures: [],
 		transformation: { k: 1, x: 0, y: 0 },
-		zoom:true
+		zoom:true,
+		health: 3,
+		decrease_health: () => set((state) => ({ health: state.health - 1 }))
 	}));
 }
 
