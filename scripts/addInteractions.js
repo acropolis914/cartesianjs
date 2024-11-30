@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import tippy from "tippy.js";
 import { updateList, updateZoomable } from "./render.js";
 import { addFigure, removeAllFigures } from "./dataManager.js";
 import { populateList } from "./render.js";
@@ -11,43 +12,47 @@ export async function addInteractions(root, store) {
 	const xScale = store.getState().xScale;
 	const yScale = store.getState().yScale;
 
-	const addPointBtn = createButton(root, "Add Point", "add-point-btn");
-	// const addRandPointBtn = root.querySelector(".add-random-point-btn");
+	const addPointBtn = createButton(root, "Add Point", "add-point-btn", "fa-solid fa-plus");
 	const addRandPointBtn = createButton(
 		root,
 		"Add Random Point",
 		"add-random-point-btn",
+		"fa-solid fa-arrows-turn-to-dots",
 	);
-
 	const addRandLineBtn = createButton(
 		root,
 		"Add Random Line",
 		"add-random-line-btn",
+		"fa-solid fa-arrow-trend-up",
+
 	);
 
-	const addCircleBtn = createButton(root, "Add Circle", "add-circle-btn");
+	const addCircleBtn = createButton(root, "Add Circle", "add-circle-btn", "fa-regular fa-circle");
 
 	const removeFiguresButton = createButton(
 		root,
 		"Remove All Figures",
 		"remove-figures-btn",
+		"fa-solid fa-toilet-paper",
 	);
 
 	const zoomText = store.getState().zoom ? "Disable Zoom" : "Enable Zoom";
-	const toggleZoomButton = createButton(root, zoomText, "toggle-zoom-btn");
 
-	const addButtonByClick = createButton(
+	const toggleZoomButton = createButton(root, zoomText, "toggle-zoom-btn", "fa-solid fa-magnifying-glass-plus");
+
+	const addByClickButton = createButton(
 		root,
 		"Add by Click",
 		"add-point-by-click-btn",
+		"fa-solid fa-mouse"
 	);
 
 	const toggleSideBar = true;
 
 	let addPointByClick = false;
 
-	if (addButtonByClick) {
-		addButtonByClick.addEventListener("click", () => {
+	if (addByClickButton) {
+		addByClickButton.addEventListener("click", () => {
 			if (!addPointByClick) {
 				addPointByClick = true;
 				svg.on("click", (event) => {
@@ -68,6 +73,7 @@ export async function addInteractions(root, store) {
 					const point = new Point(inverseXScale, inverseYScale);
 					addFigure(store, point);
 					populateList(svg, root, store);
+					checkPointfromExpectation(store, point);
 
 					// Turn off the click event listener
 					addPointByClick = false;
@@ -203,13 +209,67 @@ export async function addInteractions(root, store) {
 
 		});
 	}
+
+	const colorSelector = root.querySelector('#colorSelector');
+	let selectedColor = root.querySelector('.color-option.selected');
+
+
+	colorSelector.addEventListener('click', (event) => {
+		if (event.target.classList.contains('color-option')) {
+			if (selectedColor) {
+				selectedColor.classList.remove('selected');
+			}
+			event.target.classList.add('selected');
+			selectedColor = event.target;
+		}
+	});
+
+	const closeOverlayButton = root.querySelector("#close-overlay");
+	const overlays = root.querySelector("#overlays");
+
+	closeOverlayButton.addEventListener("click", () => {
+		overlays.style.display = "none";
+	});
 }
 
-function createButton(root, text, className) {
+function createButton(root, text, className, icon) {
 	const button = root
 		.querySelector(".button-container")
 		.appendChild(document.createElement("button"));
-	button.textContent = text;
+	const innterHTML = /*html*/
+				`<i class="${icon}"></i>
+				<span class="tooltip">${text}</span>`;
+
+				// <span class="button-text">${text}</span>
+
+	button.innerHTML = innterHTML;
 	button.className = className;
+	// button.title = text;
+
+	// tippy(`#${className}`, {
+    //     content: `${text}`,
+    // });
+
 	return button;
 }
+
+function checkPointfromExpectation(store, point) {
+	const expects = JSON.parse(store.getState().expects);
+	if (!expects) {
+		return;
+	}
+	const x = point.x;
+	const y = point.y;
+	for (const expect of expects) {
+		console.log(expect);
+		const xExpect = expect[1];
+		const yExpect = expect[2];
+		if (Math.abs(x - xExpect) < 0.1 && Math.abs(y - yExpect) < 0.1) {
+			const overlays = store.getState().root.querySelector("#overlays");
+			overlays.style.display = "flex";
+			console.log("Point is as expected");
+		}
+	}
+
+}
+

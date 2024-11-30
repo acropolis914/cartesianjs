@@ -1,8 +1,12 @@
-import {cartesianHTML} from "./cartesian-template.js";
+import { COLORS } from "./constants.js";
+import { cartesianHTML } from "./cartesian-template.js";
 // Utility functions
+let documentRoot = null;
+export function setRoot(root) {
+	documentRoot = root;
+}
 
 export async function loadTemplate() {
-	// const response = await fetch("/scripts/cartesian-plane.html");
 	const text = cartesianHTML;
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(text, "text/html");
@@ -65,3 +69,33 @@ export const alertAsync = (message) => {
 		}, 100);
 	});
 };
+
+export function getSelectedColor() {
+	const color = documentRoot.querySelector(".color-option.selected").dataset
+	.value;
+	if (!color) {
+		console.warn("documentRoot is null. Using default color 'white'.");
+		return COLORS.white;
+	}
+
+	switch (color) {
+		case "red":
+			return COLORS.red;
+		case "green":
+			return COLORS.green;
+		case "blue":
+			return COLORS.blue;
+		case "yellow":
+			return COLORS.yellow;
+		case "purple":
+			return COLORS.purple;
+		case "orange":
+			return COLORS.orange;
+		case "black":
+			return COLORS.black;
+		case "white":
+			return COLORS.white;
+		default:
+			return color;
+	}
+}

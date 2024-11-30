@@ -13,6 +13,7 @@ export function createInstanceStore(id) {
 		transformation: { k: 1, x: 0, y: 0 },
 		zoom:true,
 		health: 3,
+		expects:[],
 		decrease_health: () => set((state) => ({ health: state.health - 1 }))
 	}));
 }

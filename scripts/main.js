@@ -1,7 +1,7 @@
 import { LitElement, html } from "lit";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import { loadTemplate } from "./utils.js";
+import { loadTemplate, setRoot } from "./utils.js";
 import { loadAndPlotData, loadAndPlotData_fromProps } from "./dataManager.js";
 import { createInstanceStore } from "./state.js";
 import { initialRender, updateZoomable, watchForResize } from "./render.js";
@@ -44,8 +44,9 @@ class CartesianPlane extends LitElement {
 	}
 
 	async render() {
-		this.store.setState({ root: this.shadowRoot });
+		this.store.setState({ root: this.shadowRoot, expects : this.expects });
 		this.shadowRoot.innerHTML = await loadTemplate();
+		setRoot(this.shadowRoot);
 		if (!this.id) {
 			console.log(
 				"No ID provided, will default to null. All null instances will share the same storage.",
@@ -82,9 +83,6 @@ class CartesianPlane extends LitElement {
 			sidebarButton.click();
 		}
 
-		console.log(this.store.getState().health);
-		console.log(this.store.getState().decrease_health());
-		console.log(this.store.getState().health);
 	}
 }
 

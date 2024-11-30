@@ -87,9 +87,9 @@ export function loadAndPlotData_fromProps(thisDoc , store) {
 function deserializeFigure(fig) {
 	switch (fig.type) {
 		case "point":
-			return new Point(fig.x, fig.y, fig.id);
+			return new Point(fig.x, fig.y,fig.id,fig.color);
 		case "line":
-			return new Line(fig.m, fig.b, fig.id);
+			return new Line(fig.m, fig.b,fig.id);
 		case "circle":
 			return new Circle(fig.h, fig.k, fig.radius, fig.id);
 		case "parabola":

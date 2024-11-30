@@ -28,6 +28,7 @@
     "lit": "^3.2.1",
     "postcss": "^8.4.47",
     "postcss-preset-env": "^10.0.8",
+    "tippy.js": "^6.3.7",
     "zustand": "^5.0.0-rc.2"
   }
 }
